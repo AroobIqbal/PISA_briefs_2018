@@ -1,0 +1,24 @@
+----------------------------------------------------------------------------------------------------------------------------------
+      name:  Harmonization
+       log:  N:\GDB\Personal\WB504672\GLAD-Production/01_harmonization/013_outputs/0122_create_GLADs_29_Oct_2019_17-16-50_runswitc
+> h.log
+  log type:  text
+ opened on:  29 Oct 2019, 17:16:50
+
+. 
+. * Display all that was saved in str_to_log_*
+. forvalues j = 1(1)`i_log' {
+  2.   noi disp as res "`str_to_log_`j''"
+  3. }
+Generating all GLAD datasets... (from_datalibweb = 1; shortcut = )
+Started task at 17:16:50.
+All GLAD datasets were generated, without documentation (only available for Stata version>=15).
+
+. 
+. log close _all
+      name:  Harmonization
+       log:  N:\GDB\Personal\WB504672\GLAD-Production/01_harmonization/013_outputs/0122_create_GLADs_29_Oct_2019_17-16-50_runswitc
+> h.log
+  log type:  text
+ closed on:  29 Oct 2019, 17:16:50
+----------------------------------------------------------------------------------------------------------------------------------
