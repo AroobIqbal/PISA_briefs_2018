@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 *==============================================================================*
 * GLOBAL LEARNING ASSESSMENT DATABASE (GLAD)
 * Project information at: https://github.com/worldbank/GLAD
@@ -136,7 +136,7 @@
   *-----------------------------------------------------------------------------
 
 
-=======
+
 *==============================================================================*
 * GLOBAL LEARNING ASSESSMENT DATABASE (GLAD)
 * Project information at: https://github.com/worldbank/GLAD
@@ -273,5 +273,3 @@
   noi disp as res _newline "{phang}GLAD profile sucessfully loaded.{p_end}"
   *-----------------------------------------------------------------------------
 
-
->>>>>>> master
