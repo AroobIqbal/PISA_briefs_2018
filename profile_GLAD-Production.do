@@ -104,18 +104,18 @@
   * Load project specific ado-files
   cap net uninstall glad_toolkit
   net install glad_toolkit.pkg, from("${clone}/05_adofiles") replace
-  net install edukit.pkg, from ("N:\GDB\Personal\WB504672\EduAnalyticsToolkit\src") replace
+  *net install edukit.pkg, from ("N:\GDB\Personal\WB504672\EduAnalyticsToolkit\src") replace
 
   * Check for EduAnalyticsToolkit package
-  cap edukit
-  if _rc != 0 {
-    noi disp as err _newline "{phang}You don't have the required EduAnalytics Toolkit package installed. Please see this link for info on how to install it: https://github.com/worldbank/EduAnalyticsToolkit{p_end}"
-    error 2222
-  }
-  else if `r(version)' < 1.0 {
-    noi disp as err _newline "{phang}You have an outdated version of the required EduAnalytics Toolkit package installed. Please see this link for info on how to update it: https://github.com/worldbank/EduAnalyticsToolkit{p_end}"
-    error 2222
-  }
+  *cap edukit
+  *if _rc != 0 {
+    *noi disp as err _newline "{phang}You don't have the required EduAnalytics Toolkit package installed. Please see this link for info on how to install it: https://github.com/worldbank/EduAnalyticsToolkit{p_end}"
+    *error 2222
+  *}
+  *else if `r(version)' < 1.0 {
+    *noi disp as err _newline "{phang}You have an outdated version of the required EduAnalytics Toolkit package installed. Please see this link for info on how to update it: https://github.com/worldbank/EduAnalyticsToolkit{p_end}"
+    *error 2222
+  *}
 
   /* NOTE: EDUKIT is the shortname of the the public repo EduAnalyticsToolkit.
      For info on the repo: https://github.com/worldbank/EduAnalyticsToolkit
@@ -205,6 +205,10 @@
   else if inlist("`c(username)'","wb504672","WB504672") {
     global clone "N:\GDB\Personal\WB504672\GLAD-Production"
   }
+  * Aishwarya
+  else if inlist("`c(username)'","wb556220","WB556220") {
+    global clone "C:\Users\wb556220\OneDrive - WBG\PISA 2018"
+  }
 
   /* WELCOME!!! ARE YOU NEW TO THIS CODE?
      Add yourself by copying the lines above, making sure to adapt your clone */
@@ -242,18 +246,18 @@
   * Load project specific ado-files
   cap net uninstall glad_toolkit
   net install glad_toolkit.pkg, from("${clone}/05_adofiles") replace
-  net install edukit.pkg, from ("N:\GDB\Personal\WB504672\EduAnalyticsToolkit\src") replace
+  *net install edukit.pkg, from ("N:\GDB\Personal\WB504672\EduAnalyticsToolkit\src") replace
 
   * Check for EduAnalyticsToolkit package
-  cap edukit
-  if _rc != 0 {
-    noi disp as err _newline "{phang}You don't have the required EduAnalytics Toolkit package installed. Please see this link for info on how to install it: https://github.com/worldbank/EduAnalyticsToolkit{p_end}"
-    error 2222
-  }
-  else if `r(version)' < 1.0 {
-    noi disp as err _newline "{phang}You have an outdated version of the required EduAnalytics Toolkit package installed. Please see this link for info on how to update it: https://github.com/worldbank/EduAnalyticsToolkit{p_end}"
-    error 2222
-  }
+  *cap edukit
+  *if _rc != 0 {
+    *noi disp as err _newline "{phang}You don't have the required EduAnalytics Toolkit package installed. Please see this link for info on how to install it: https://github.com/worldbank/EduAnalyticsToolkit{p_end}"
+    *error 2222
+  *}
+  *else if `r(version)' < 1.0 {
+    *noi disp as err _newline "{phang}You have an outdated version of the required EduAnalytics Toolkit package installed. Please see this link for info on how to update it: https://github.com/worldbank/EduAnalyticsToolkit{p_end}"
+    *error 2222
+  *}
 
   /* NOTE: EDUKIT is the shortname of the the public repo EduAnalyticsToolkit.
      For info on the repo: https://github.com/worldbank/EduAnalyticsToolkit
