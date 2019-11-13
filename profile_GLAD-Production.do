@@ -63,6 +63,10 @@
   else if inlist("`c(username)'","wb504672","WB504672") {
     global clone "N:\GDB\Personal\WB504672\GLAD-Production"
   }
+  * Aishwarya
+  else if inlist("`c(username)'","wb556220","WB556220") {
+    global clone "C:\Users\wb556220\OneDrive - WBG\PISA 2018"
+  }
 
   /* WELCOME!!! ARE YOU NEW TO THIS CODE?
      Add yourself by copying the lines above, making sure to adapt your clone */
