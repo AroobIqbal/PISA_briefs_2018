@@ -10,7 +10,7 @@ local master      = "v01_M" /* usually v01_M, unless the master (eduraw) was upd
 local adaptation  = "wrk_A_GLAD" /* no need to change here */
 local module      = "ALL"  /* for now, we are only generating ALL and ALL-BASE in GLAD */
 local ttl_info    = "Joao Pedro de Azevedo [eduanalytics@worldbank.org]" /* no need to change here */
-local dofile_info = "last modified by Syedah Aroob Iqbal in October 29, 2019"  /* change date*/
+local dofile_info = "last modified by Aishwarya in November 13', 2019"  /* change date*/
 *
 * Steps:
 * 0) Program setup (identical for all assessments)
@@ -78,7 +78,7 @@ local dofile_info = "last modified by Syedah Aroob Iqbal in October 29, 2019"  /
        but other asssessments only need to loop over prefix (such as LLECE).
        See the two examples below and change according to your needs */
 
-    foreach file in CY6_MS_CMB_STU_QQQ CY6_MS_CMB_SCH_QQQ {
+    foreach file in CY6_MS_CMB_STU_QQQ CY6_MS_CMB_SCH_QQQ CY6_MS_CMB_STU_FLT {
          if `from_datalibweb'==1 {
            noi edukit_datalibweb, d(country(`region') year(`year') type(EDURAW) surveyid($surveyid) filename(`file'.dta) `shortcut')
          }
@@ -102,7 +102,8 @@ local dofile_info = "last modified by Syedah Aroob Iqbal in October 29, 2019"  /
        See the two examples continuedw and change according to your needs */
 	   
 	use "$temp_dir\CY6_MS_CMB_STU_QQQ.dta", clear
-	*merge 1:1 cnt schoolid stidstd using "$temp_dir\CY6_MS_CMB_SCH_QQQ.dta", assert(master match) keepusing(pv*flit) nogen - Add financial literacy data
+	*merge 1:1 cnt schoolid stidstd using "$temp_dir\CY6_MS_CMB_SCH_QQQ.dta", assert(master match) keepusing(pv*flit) nogen
+	merge 1:1 cnt cntschid cntstuid using "$temp_dir\CY6_MS_CMB_STU_FLT.dta", assert(master match using) keepusing(pv*flit) nogen
 	merge m:1 cnt cntschid using "$temp_dir\CY6_MS_CMB_SCH_QQQ.dta", assert(master match) nogen
 	save "$temp_dir\PISA_2015.dta", replace
     noi disp as res "{phang}Step 2 completed ($output_file){p_end}"
@@ -157,7 +158,7 @@ use "$temp_dir\PISA_2015.dta", replace
     local valuevars	"score_pisa* level_pisa*"
 
     *<_score_assessment_subject_pv_>
-	foreach sub in read math scie {
+	foreach sub in read math scie flit {
 		foreach pv in 1 2 3 4 5 {
 			clonevar score_pisa_`sub'_`pv' = pv`pv'`sub'
 			label var score_pisa_`sub'_`pv' "Plausible value `pv': `assessment' score for `sub'"
@@ -200,11 +201,20 @@ use "$temp_dir\PISA_2015.dta", replace
 			replace level_pisa_math_`pv' = "5" if pv`pv'math >= 607 & pv`pv'math < 669
 			replace level_pisa_math_`pv' = "6" if pv`pv'math >= 669 & !missing(pv`pv'math)
 		}
+		*For financial litearcy - According to PISA 2015 report
+		foreach pv in 1 2 3 4 5 {
+			gen level_pisa_flit_`pv' = "<1" if pv`pv'flit < 326  
+			replace level_pisa_flit_`pv' = "1" if pv`pv'flit >= 326 & pv`pv'flit < 400 
+			replace level_pisa_flit_`pv' = "2" if pv`pv'flit >= 400 & pv`pv'flit < 475 
+			replace level_pisa_flit_`pv' = "3" if pv`pv'flit >= 475 & pv`pv'flit < 550
+			replace level_pisa_flit_`pv' = "4" if pv`pv'flit >= 550 & pv`pv'flit < 625
+			replace level_pisa_flit_`pv' = "6" if pv`pv'flit >= 625 & !missing(pv`pv'flit)
+		}
     *</_level_assessment_subject_pv_>*/
 
 
     // TRAIT Vars: - Add more as needed - Go through PISA
-    local traitvars	"age urban* male escs_quintile native city"
+    local traitvars	"age urban* male escs_quintile native city ece language school_type"
 
     *<_age_>
     *gen age = asdage		if  !missing(asdage)	& asdage!= 99
@@ -237,12 +247,21 @@ use "$temp_dir\PISA_2015.dta", replace
     label var native "Learner is native (1), second-generation (2), first-generation (3)"
     *</_native_>
 	
-	/*<_ece_> - Discuss further
-	clonevar ece = st05q01 if !inlist(st05q01,7,8,9)
+	*<_ece_> - Discuss further
+	clonevar ece = st124q01ta if !inlist(st124q01ta,7,8,9)
 	label var ece "Attended early childhood education"
 	label values ece ece
-	*</_ece_>*/
+	*</_ece_>*
 
+	*<_language_>
+    gen language = st022q01ta if !inlist(st022q01ta,97,98,99)
+    label var native "Language of test (1), other language (2)"
+    *</_language_>
+	
+	*<_school_type_> - 
+	gen school_type = schltype if !inlist(schltype,8,9)
+	label var school_type "Type of ownership and decision-making power of schools"
+	*</_school_type_>
 
     // SAMPLE Vars:		 	  /* CHANGE HERE FOR YOUR ASSESSMENT!!! PIRLS EXAMPLE */
     local samplevars "learner_weight* weight_replicate*"
@@ -315,7 +334,7 @@ use "$temp_dir\PISA_2015.dta", replace
                 metadata("$metadata'") collection("GLAD")*/
 				
 	save "$output_dir/WLD_2015_PISA_v01_M_wrk_A_GLAD_ALL.dta", replace
-	isid `idvars'
+	isid idcntry_raw idschool idlearner
 	keep `keyvars' `idvars' `valuevars' `traitvars' `samplevars' 
 	order `keyvars' `idvars' `valuevars' `traitvars' `samplevars' 
 	save "$output_dir/WLD_2015_PISA_v01_M_wrk_A_GLAD.dta", replace
