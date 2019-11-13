@@ -1,5 +1,4 @@
 
-global path = "N:\GDB\HLO_Database"
 foreach year in 2000 {
 
 *Setting folder structure:
@@ -89,7 +88,7 @@ local time  = subinstr("$S_TIME",":","-",.)
 		}
 		keep countrycode national_level idgrade age m_* se_* n_*	
 		collapse m_* se_* n_* idgrade age, by(countrycode national_level)
-		save "${path}\temp\temp_`year'_PISA_v01_M_v01_A_CI_LEVELS_`c'.dta", replace
+		save "$temp_dir\temp_`year'_PISA_v01_M_v01_A_CI_LEVELS_`c'.dta", replace
 		restore	
 	}
 }

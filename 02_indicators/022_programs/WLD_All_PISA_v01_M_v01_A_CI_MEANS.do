@@ -1,4 +1,4 @@
-global path = "N:\GDB\HLO_Database\"
+
 set trace on
 foreach year in 2006 {
 
@@ -42,7 +42,7 @@ local time  = subinstr("$S_TIME",":","-",.)
 	*Keeping for EAP: 
 	keep if inlist(countrycode,"AUS","HKG","IDN","KOR","MAC","NZL","THA","TWN") 
 	gen total = 1
-	
+		
 	*PISA 2015 and 2012: Albania data has certain issues due to which the student questionnaire data and student test data could not be matched.
 	drop if (`year' == 2015 & countrycode == "ALB") | (`year' == 2012 & countrycode == "ALB")
 
@@ -89,7 +89,7 @@ local time  = subinstr("$S_TIME",":","-",.)
 		}
 		keep countrycode national_level idgrade age m_* se_* n_*	
 		collapse m_* se_* n_* idgrade age, by(countrycode national_level)
-		save "${path}\temp\temp_`year'_PISA_v01_M_v01_A_CI_MEANS_`c'.dta", replace
+		save "$temp_dir\temp_`year'_PISA_v01_M_v01_A_CI_MEANS_`c'.dta", replace
 		restore	
 	}
 }
