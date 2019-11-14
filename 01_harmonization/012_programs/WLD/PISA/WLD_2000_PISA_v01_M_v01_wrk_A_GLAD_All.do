@@ -10,7 +10,7 @@ local master      = "v01_M" /* usually v01_M, unless the master (eduraw) was upd
 local adaptation  = "wrk_A_GLAD" /* no need to change here */
 local module      = "ALL"  /* for now, we are only generating ALL and ALL-BASE in GLAD */
 local ttl_info    = "Joao Pedro de Azevedo [eduanalytics@worldbank.org]" /* no need to change here */
-local dofile_info = "last modified by Syedah Aroob Iqbal in October 29, 2019"  /* change date*/
+local dofile_info = "last modified by Aishwarya on November 14, 2019"  /* change date*/
 *
 * Steps:
 * 0) Program setup (identical for all assessments)
@@ -18,7 +18,8 @@ local dofile_info = "last modified by Syedah Aroob Iqbal in October 29, 2019"  /
 * 2) Combine all rawdata into a single file (merge and append)
 * 3) Standardize variable names across all assessments
 * 4) ESCS and other calculations
-* 5) Bring WB countrycode & harmonization thresholds, and save dtas
+* 5) Labelling missing values
+* 6) Bring WB countrycode & harmonization thresholds, and save dtas
 *=========================================================================*
 
 
@@ -214,7 +215,7 @@ use "$temp_dir\PISA_2000.dta", replace
 
 
     // TRAIT Vars: - Add more as needed - Go through PISA
-    local traitvars	"age urban* male escs escs_quintile_read native city escs_quintile_math escs_quintile_scie"
+    local traitvars	"age urban* male escs escs_quintile_read native city escs_quintile_math escs_quintile_scie school_type language"
 
     *<_age_>
 	recode age (997 999 = .z), gen(age_n)
@@ -236,6 +237,8 @@ use "$temp_dir\PISA_2000.dta", replace
 
     *<_urban_o_>
     decode sc01q01, g(urban_o)
+	replace urban_o = "Not Applicable" if inlist(urban_o, "N/A")
+	replace urban_o = "Missing" if inlist(urban_o, "Mis", "M/R")
     label var urban_o "Original variable of urban: population size of the school area"
     *</_urban_o_>*/
 
@@ -252,7 +255,23 @@ use "$temp_dir\PISA_2000.dta", replace
 	label define native 1 "native" 2 "first-generation" 3 "second-generation"
 	label var native native
     *</_native_>
-
+	
+	/*<_ece_> information/questions not available*/
+	
+	*<_school_type_> 
+	gen school_type = schltype if !inlist(schltype,7,9)
+	replace school_type = -97 if inlist(schltype, 7)
+	replace school_type = -99 if inlist(schltype, 9)
+	label var school_type "Type of ownership and decision-making power of schools"
+	*</_school_type_>
+	
+	*<_language_>
+    gen language = st17q01 == 1
+	replace language = 2 if inlist(st17q01,2,3,4)
+	replace language = -97 if inlist(st17q01,7)
+	replace language = -99 if inlist(st17q01,8,9)
+    label var native "Language of test (1), other language (2)"
+    *</_language_>
 
 
     // SAMPLE Vars:		 	  /* CHANGE HERE FOR YOUR ASSESSMENT!!! PIRLS EXAMPLE */

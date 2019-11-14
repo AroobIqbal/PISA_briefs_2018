@@ -11,14 +11,9 @@ Source: PISA-2015 technical-report-final. Table 12.12, Page 238.
 (2) language at home is another language.
 
 - School type (same for all previous years)
-(1) government-independent private schools controlled by a non-government
-organisation or with a governing board not selected by a government agency which receive less than 50% of their
-core funding from government agencies, 
-(2) government-dependent private schools controlled by a non-government
-organisation or with a governing board not selected by a government agency which receive more than 50% of their
-core funding from government agencies, 
-(3) public schools controlled and managed by a public education authority or
-agency.
+(1) government-independent private schools controlled by a non-government organisation or with a governing board not selected by a government agency which receive less than 50% of their core funding from government agencies, 
+(2) government-dependent private schools controlled by a non-government organisation or with a governing board not selected by a government agency which receive more than 50% of their core funding from government agencies, 
+(3) public schools controlled and managed by a public education authority or agency.
 
 -early childhood education 
 (1) no 
@@ -40,14 +35,25 @@ Source: PISA-2015 technical-report-final. Table 12.12, Page 238.
 Source: PISA 2012 Technical Report_Chapter 16, page 307.
 
 - School type (same for all previous years)
-(1) government-independent private schools controlled by a non-government
-organisation or with a governing board not selected by a government agency which receive less than 50% of their
-core funding from government agencies, 
-(2) government-dependent private schools controlled by a non-government
-organisation or with a governing board not selected by a government agency which receive more than 50% of their
-core funding from government agencies, 
-(3) public schools controlled and managed by a public education authority or
-agency.
+(1) government-independent private schools controlled by a non-government organisation or with a governing board not selected by a government agency which receive less than 50% of their core funding from government agencies, 
+(2) government-dependent private schools controlled by a non-government organisation or with a governing board not selected by a government agency which receive more than 50% of their core funding from government agencies, 
+(3) public schools controlled and managed by a public education authority or agency.
 Source: PISA 2012 Technical Report_Chapter 16, page 308.
+
+*/
+
+
+/* PISA 2000 do file 
+
+1. New trait variables created 
+
+- Language (variable used st17q01)
+(1) language at home is the same as the language of assessment for that student and 
+(2) language at home is another language.
+
+- School type (same as other years)
+(1) government-independent private schools
+(2) government-dependent private schools
+(3) public schools
 
 */
