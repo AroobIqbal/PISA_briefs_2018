@@ -139,7 +139,8 @@ use "$temp_dir\PISA_2000.dta", replace
     *</_idschool_>
 
     *<_idgrade_>
-	gen idgrade = st02q01 if !inlist(st02q01,97,99)
+	*Attempting recode 
+	recode st02q01 (97 = -97) (99 = -99), gen(idgrade)
     label var idgrade "Grade ID"
     *</_idgrade_>
 
@@ -150,12 +151,13 @@ use "$temp_dir\PISA_2000.dta", replace
     *<_idlearner_>
     encode stidstd, gen(idlearner)
     label var idlearner "Learner ID"
+
     *</_idlearner_>
 
-    // Drop any value labels of idvars, to be okay to append multiple surveys
-    /*foreach var of local idvars {
+    *// Drop any value labels of idvars, to be okay to append multiple surveys
+    foreach var of varlist idschool idlearner {
       label values `var' .
-    }*/
+    }
 
 
     // VALUE Vars: 	  /* CHANGE HERE FOR YOUR ASSESSMENT!!! PIRLS EXAMPLE */
@@ -183,6 +185,7 @@ use "$temp_dir\PISA_2000.dta", replace
 			replace level_pisa_scie_`pv' = "4" if pv`pv'scie >= 559 & pv`pv'scie < 633
 			replace level_pisa_scie_`pv' = "5" if pv`pv'scie >= 633 & pv`pv'scie < 708
 			replace level_pisa_scie_`pv' = "6" if pv`pv'scie >= 708 & !missing(pv`pv'scie)
+			replace level_pisa_scie_`pv' = "-99" if missing(level_pisa_scie_`pv')
 		}
 	*For reading - According to PISA 2015 report
 		foreach pv in 1 2 3 4 5 {
@@ -204,6 +207,8 @@ use "$temp_dir\PISA_2000.dta", replace
 			replace level_pisa_math_`pv' = "4" if pv`pv'math >= 545 & pv`pv'math < 607
 			replace level_pisa_math_`pv' = "5" if pv`pv'math >= 607 & pv`pv'math < 669
 			replace level_pisa_math_`pv' = "6" if pv`pv'math >= 669 & !missing(pv`pv'math)
+			replace level_pisa_math_`pv' = "-99" if missing(level_pisa_math_`pv')
+
 		}
     *</_level_assessment_subject_pv_>*/
 
@@ -212,19 +217,21 @@ use "$temp_dir\PISA_2000.dta", replace
     local traitvars	"age urban* male escs escs_quintile_read native city escs_quintile_math escs_quintile_scie"
 
     *<_age_>
-    *gen age = asdage		if  !missing(asdage)	& asdage!= 99
+	recode age (997 999 = .z), gen(age_n)
+	drop age
+	ren age_n age
+    replace age = age/12	
+	replace age = -99 if missing(age)
     label var age "Learner age at time of assessment"
     *</_age_>
 
     *<_urban_>
-    gen byte urban = (inlist(sc01q01, 2, 3, 4, 5, 6)) if !missing(sc01q01) & !inlist(sc01q01,7,8,9)
+    recode sc01q01 (1 = 0 "Rural") (2/6 = 1 "Urban") (7 = -97) (8/9 = -99), gen(urban)
     label var urban "School is located in urban/rural area"
     *</_urban_>
 	
 	*<_city_>
-	gen int city = 1 if (inlist(sc01q01, 4, 5, 6)) 
-	replace city = 2 if (inlist(sc01q01, 2, 3))
-	replace city = 3 if (inlist(sc01q01,1))
+	recode sc01q01 (4/6 = 1 "City") (2/3 = 2 "Town") (1 = 3 "Village")  (7 = -97) (8/9 = -99), gen(city)
 	label var city "School is located in city (1), town (2), village (3)"
 
     *<_urban_o_>
@@ -233,7 +240,7 @@ use "$temp_dir\PISA_2000.dta", replace
     *</_urban_o_>*/
 
     *<_male_>
-    gen byte male = (st03q01 == 2)	& !inlist(st03q01,7,8,9)
+	recode st03q01 (2 = 1 "Male") (1 = 0 "Female") (7 = -97) (8/9 = -99), gen(male)
     label var male "Learner gender is male/female"
     *</_male_>
 	
@@ -242,6 +249,8 @@ use "$temp_dir\PISA_2000.dta", replace
 	replace native = 2 if st16q01 == 1 & (st16q02 == 2 & st16q03 == 2)
 	replace native = 3 if st16q01 == 2 & (st16q02 == 2 & st16q03 == 2)
     label var native "Learner is native (1), first-generation (2), second-generation (3)"
+	label define native 1 "native" 2 "first-generation" 3 "second-generation"
+	label var native native
     *</_native_>
 
 
@@ -289,10 +298,30 @@ use "$temp_dir\PISA_2000.dta", replace
 	}
 
     noi disp as res "{phang}Step 4 completed ($output_file){p_end}"
+	
+	*-------------------------------------------------------------------------------
+	* 5) Labelling missing values
+	*-------------------------------------------------------------------------------
+	labmv, mv(-97 .a -98 .b  -99 .z ) all
+	qui label dir
+	foreach label in `r(names)' {
+		label define `label' .a "Not Applicable" .b "No Response" .z "Missing", modify
+	}
+	quiet ds
+	foreach var in `r(varlist)' {
+		local vlab : value label `var'
+		if "`vlab'"==""  {
+			label define l`var' .a "Not Applicable" .b "No Response"  .z "Missing", modify
+			capture label val `var' l`var'
+		}
+		else {
+		display "do nothing"
+		} 
+	}	
 
 
     *---------------------------------------------------------------------------
-    * 5) Bring WB countrycode & harmonization thresholds, and save dtas
+    * 6) Bring WB countrycode & harmonization thresholds, and save dtas
     *---------------------------------------------------------------------------
 
     // Brings World Bank countrycode from ccc_list
@@ -322,8 +351,10 @@ use "$temp_dir\PISA_2000.dta", replace
                 metadata("$metadata'") collection("GLAD")*/
 				
 	save "$output_dir/$output_file.dta", replace
+	isid idcntry_raw idschool idlearner
 	keep `keyvars' `idvars' `valuevars' `traitvars' `samplevars' 
 	order `keyvars' `idvars' `valuevars' `traitvars' `samplevars' 
+	codebook, compact
 	save "$output_dir/WLD_2000_PISA_v01_M_wrk_A_GLAD.dta", replace
 
 

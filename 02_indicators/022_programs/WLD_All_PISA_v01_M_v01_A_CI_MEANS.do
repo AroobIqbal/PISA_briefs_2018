@@ -38,7 +38,7 @@ local time  = subinstr("$S_TIME",":","-",.)
 
 
 	use "$output_dir/WLD_`year'_PISA_v01_M_wrk_A_GLAD.dta", replace
-	
+}	
 	*Keeping for EAP: 
 	keep if inlist(countrycode,"AUS","HKG","IDN","KOR","MAC","NZL","THA","TWN") 
 	gen total = 1
@@ -93,3 +93,11 @@ local time  = subinstr("$S_TIME",":","-",.)
 		restore	
 	}
 }
+
+        foreach var of local this_indicators {
+          label var m_`var'  "Mean of `var'"
+          label var se_`var' "Standard error of m_`var'"
+          label var n_`var'  "Number of observations used to calculate m_`var'"
+          format %10.4f  m_`var' se_`var'
+          format %10.0fc n_`var'
+        }

@@ -15,6 +15,7 @@
 *    Creates log with timestamps in documentation folder
 *
 * Metadata to be stored as 'char' in the resulting dataset (do NOT use ";" here)
+local master      = "v01_M" /* usually v01_M, unless the master (eduraw) was updated*/
 local adaptation  = "wrk_A_GLAD"
 local module_in   = "ALL"
 local module_out  = "CLO"
@@ -23,19 +24,19 @@ local dofile_info = "last modified by Syedah Aroob Iqbal in October 6, 2019"
 * Note: files will also maintain chars region year assessment master from GLAD
 *==============================================================================*
 
-
+set trace on
 *-------------------------------------------------------------------------------
 * 0) Program setup
 *-------------------------------------------------------------------------------
 * Execution parameters
 
 * The CLO file will have groupvars that combine id and trait groupvars
-local id_groupvars    = "countrycode idgrade"
+local id_groupvars    = "countrycode"
 local trait_groupvars = "male urban escs_quintile native"
 
 * Turning these locals off to 0 will save time, but generate incomplete CLO files (shortcut for Learning Poverty)
-local collapse_factor_vars = 1	// If 1, factor variables in GLAD are collapsed (ie: level_pirls_read)
-local collapse_number_vars = 1	// If 1, number variables in GLAD are collapsed (ie: score_pirls_read)
+local collapse_factor_vars = 0	// If 1, factor variables in GLAD are collapsed (ie: level_pirls_read)
+local collapse_number_vars = 0	// If 1, number variables in GLAD are collapsed (ie: score_pirls_read)
 
 * Whether the loop will generate documentation for each .dta or no depends on Stata version
 *local generate_documentation = ( c(version)>=15 )
@@ -56,9 +57,9 @@ local time  = subinstr("$S_TIME",":","-",.)*/
 *-------------------------------------------------------------------------------
 * Basically, it creates region_year_assessment_v_M_v_A_GLAD_CLO.dta for all
 * surveys that are part of the surveys_to_process in the current run_switch
-
+set trace on
 * Loop over all surveys to process (ie: WLD_2001_PIRLS)
-foreach survey of global WLD_2000_PISA {
+ local survey = "WLD_2000_PISA" 
 
   * Parsing region year and assessment from survey
   gettoken region aux_token  : survey,    parse("_")
@@ -124,14 +125,15 @@ foreach survey of global WLD_2000_PISA {
     local input_file   "`surveyid'_`adaptation'_`module_in'"
 
     * If user does not have access to or chooses not to use datalibweb, point to GLAD location
-    if $from_datalibweb_GLAD_02 == 0    local input_dir "${input}/`region'/`region'_`year'_`assessment'/"
+    *if $from_datalibweb_GLAD_02 == 0    
+	local input_dir "${input}/`region'/`region'_`year'_`assessment'/"
 
     * Confirm if the final CLO file already exists in the output_dir
     *cap confirm file "`output_dir'/`output_file'.dta"
     * If the file does not exist or overwrite_files local is set to one, continue
     *if (_rc == 601) | ($overwrite_files_GLAD_02) {
 
-}
+
         *---------------------------------------------------------------------------
         * 2) Open and check the GLAD dataset which is the input for CLO
         *---------------------------------------------------------------------------
@@ -141,9 +143,9 @@ foreach survey of global WLD_2000_PISA {
         * 2a) Open the GLAD micro data that the indicators will be calculated from
 
         * Open flexibly the GLAD dta from input_dir or datalibweb
-        if $from_datalibweb_GLAD_02 == 1 noi edukit_datalibweb, d(country(`region') year(`year') type(GLAD) surveyid(`surveyid') filename(`input_file') $shortcut_GLAD_02)
-        else use "`input_dir'/`input_file'.dta", clear
-		display `input_file'
+        *if $from_datalibweb_GLAD_02 == 1 noi edukit_datalibweb, d(country(`region') year(`year') type(GLAD) surveyid(`surveyid') filename(`input_file') $shortcut_GLAD_02)
+        *else 
+		use "`input_dir'/WLD_2000_PISA_v01_M_wrk_A_GLAD.dta", clear
 
         * Harmonization of proficiency on-the-fly, based on thresholds as CPI
        * glad_hpro_as_cpi
