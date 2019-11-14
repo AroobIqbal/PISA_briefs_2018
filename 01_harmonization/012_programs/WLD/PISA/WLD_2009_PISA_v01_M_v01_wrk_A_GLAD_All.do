@@ -10,7 +10,7 @@ local master      = "v01_M" /* usually v01_M, unless the master (eduraw) was upd
 local adaptation  = "wrk_A_GLAD" /* no need to change here */
 local module      = "ALL"  /* for now, we are only generating ALL and ALL-BASE in GLAD */
 local ttl_info    = "Joao Pedro de Azevedo [eduanalytics@worldbank.org]" /* no need to change here */
-local dofile_info = "last modified by Syedah Aroob Iqbal in October 29, 2019"  /* change date*/
+local dofile_info = "last modified by Aishwarya on November 14, 2019, 2019"  /* change date*/
 *
 * Steps:
 * 0) Program setup (identical for all assessments)
@@ -18,7 +18,8 @@ local dofile_info = "last modified by Syedah Aroob Iqbal in October 29, 2019"  /
 * 2) Combine all rawdata into a single file (merge and append)
 * 3) Standardize variable names across all assessments
 * 4) ESCS and other calculations
-* 5) Bring WB countrycode & harmonization thresholds, and save dtas
+* 5) Labelling missing values
+* 6) Bring WB countrycode & harmonization thresholds, and save dtas
 *=========================================================================*
 
 
@@ -204,7 +205,7 @@ use "$temp_dir\PISA_2009.dta", replace
 
 
     // TRAIT Vars: - Add more as needed - Go through PISA
-    local traitvars	"age urban* male escs_quintile native city ece"
+    local traitvars	"age urban* male escs_quintile native city ece language school_type"
 
     *<_age_>
     *gen age = asdage		if  !missing(asdage)	& asdage!= 99
@@ -212,37 +213,61 @@ use "$temp_dir\PISA_2009.dta", replace
     *</_age_>
 
     *<_urban_>
-    gen byte urban = (inlist(sc04q01, 2, 3, 4, 5)) if !missing(sc04q01) & !inlist(sc04q01,7,8,9)
+    recode sc04q01 (1 = 0 "Rural") (2/5 = 1 "Urban") (7 = -97) (8 = -98) (9 = -99), gen(urban)
     label var urban "School is located in urban/rural area"
     *</_urban_>
 	
 	*<_city_>
-	gen int city = 1 if (inlist(sc04q01, 4, 5)) 
-	replace city = 2 if (inlist(sc04q01, 2, 3))
-	replace city = 3 if (inlist(sc04q01,1))
+	recode sc04q01 (4/5 = 1 "City") (2/3 = 2 "Town") (1 = 3 "Village") (7 = -97) (8 = -98) (9 = -99), gen(city)
 	label var city "School is located in city (1), town (2), village (3)"
 
     *<_urban_o_>
     decode sc04q01, g(urban_o)
+	replace urban_o = "No Response" if inlist(urban_o, "Invalid")
+    replace urban_o = "Missing" if inlist(urban_o, "Miss")
+	replace urban_o = "Non Applicable" if inlist(urban_o, "N/A")
+	label define urban_o .a "Not Applicable" .b "No Response"  .z "Missing", modify
     label var urban_o "Original variable of urban: population size of the school area"
     *</_urban_o_>*/
 
     *<_male_>
-    gen byte male = (st04q01 == 2)	& !inlist(st04q01,9)
-    label var male "Learner gender is male/female"
+    recode st04q01 (2 = 1 "Male") (1 = 0 "Female"), gen(male)
+	replace male = -99 if male == 9
+	label var male "Learner gender is male/female"
     *</_male_>
 	
 	*<_native_>
     gen native = immig if !inlist(immig,7,9)
-    label var native "Learner is native (1), first-generation (2), second-generation (3)"
+    replace native = -97 if inlist(immig,7)
+	replace native = -99 if inlist(immig,9)
+	label var native "Learner is native (1), first-generation (2), second-generation (3)"
     *</_native_>
 	
-	*<_ece_> - 
+	*<_ece_>
 	gen ece = st05q01 if !inlist(st05q01,7,8,9)
+	replace ece = -97 if inlist(st05q01, 7)
+	replace ece = -98 if inlist(st05q01, 8)
+	replace ece = -99 if inlist(st05q01, 9)
 	label var ece "Attended early childhood education"
 	label define ece 0 "No" 1 "Yes, one year or less" 2 "Yes, more than a year"
 	label values ece ece
 	*</_ece_>
+	
+	*<_language_>
+    gen language = st19q01 if !inlist(st19q01,7,8,9)
+	replace language = -97 if inlist(st19q01, 7)
+	replace language = -98 if inlist(st19q01,8)
+    replace language = -99 if inlist(st19q01,9)
+	label var native "Language of test (1), other language (2)"
+    *</_language_>
+	
+	*<_school_type_>
+	recode schtype (1 = 3) (3 = 1), gen(school_type)
+	replace school_type = -97 if schtype == 7
+	replace school_type = -98 if schtype == 8
+	replace school_type = -99 if schtype == 9
+	label var school_type "Type of ownership and decision-making power of schools"
+	*</_school_type_>
 
 
     // SAMPLE Vars:		 	  /* CHANGE HERE FOR YOUR ASSESSMENT!!! PIRLS EXAMPLE */
@@ -285,8 +310,29 @@ use "$temp_dir\PISA_2009.dta", replace
     noi disp as res "{phang}Step 4 completed ($output_file){p_end}"
 
 
+	*--------------------------------------------------------------------
+    * 5) Labelling mising values 
+    *--------------------------------------------------------------------
+	labmv, mv(-97 .a -98 .b -99 .z ) all
+	qui label dir
+	foreach label in `r(names)' {
+		label define `label' .a "Not Applicable" .b "No Response" .z "Missing", modify
+	}
+	quiet ds
+	foreach var in `r(varlist)' {
+		local vlab : value label `var'
+		if "`vlab'"==""  {
+			label define l`var' .a "Not Applicable" .b "No Response"  .z "Missing", modify
+			capture label val `var' l`var'
+		}
+		else {
+		display "do nothing"
+		} 
+	}	
+	
+	
     *---------------------------------------------------------------------------
-    * 5) Bring WB countrycode & harmonization thresholds, and save dtas
+    * 6) Bring WB countrycode & harmonization thresholds, and save dtas
     *---------------------------------------------------------------------------
 
     // Brings World Bank countrycode from ccc_list
@@ -316,7 +362,7 @@ use "$temp_dir\PISA_2009.dta", replace
                 metadata("$metadata'") collection("GLAD")*/
 				
 	save "$output_dir/WLD_2009_PISA_v01_M_wrk_A_GLAD_ALL.dta", replace
-	isid `idvars'
+	isid idcntry_raw idschool idlearner
 	keep `keyvars' `idvars' `valuevars' `traitvars' `samplevars' 
 	order `keyvars' `idvars' `valuevars' `traitvars' `samplevars' 
 	save "$output_dir/WLD_2009_PISA_v01_M_wrk_A_GLAD.dta", replace

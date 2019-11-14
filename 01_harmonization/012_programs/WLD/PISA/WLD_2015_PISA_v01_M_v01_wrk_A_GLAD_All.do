@@ -10,7 +10,7 @@ local master      = "v01_M" /* usually v01_M, unless the master (eduraw) was upd
 local adaptation  = "wrk_A_GLAD" /* no need to change here */
 local module      = "ALL"  /* for now, we are only generating ALL and ALL-BASE in GLAD */
 local ttl_info    = "Joao Pedro de Azevedo [eduanalytics@worldbank.org]" /* no need to change here */
-local dofile_info = "last modified by Aishwarya in November 14, 2019"  /* change date*/
+local dofile_info = "last modified by Aishwarya on November 14, 2019"  /* change date*/
 *
 * Steps:
 * 0) Program setup (identical for all assessments)
