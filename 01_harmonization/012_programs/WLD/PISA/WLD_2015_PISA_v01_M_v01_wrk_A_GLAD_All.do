@@ -10,7 +10,7 @@ local master      = "v01_M" /* usually v01_M, unless the master (eduraw) was upd
 local adaptation  = "wrk_A_GLAD" /* no need to change here */
 local module      = "ALL"  /* for now, we are only generating ALL and ALL-BASE in GLAD */
 local ttl_info    = "Joao Pedro de Azevedo [eduanalytics@worldbank.org]" /* no need to change here */
-local dofile_info = "last modified by Aishwarya in November 13', 2019"  /* change date*/
+local dofile_info = "last modified by Aishwarya in November 14, 2019"  /* change date*/
 *
 * Steps:
 * 0) Program setup (identical for all assessments)
@@ -18,7 +18,8 @@ local dofile_info = "last modified by Aishwarya in November 13', 2019"  /* chang
 * 2) Combine all rawdata into a single file (merge and append)
 * 3) Standardize variable names across all assessments
 * 4) ESCS and other calculations
-* 5) Bring WB countrycode & harmonization thresholds, and save dtas
+* 5) Labelling missing values
+* 6) Bring WB countrycode & harmonization thresholds, and save dtas
 *=========================================================================*
 
 
@@ -219,47 +220,54 @@ use "$temp_dir\PISA_2015.dta", replace
     *<_age_>
     *gen age = asdage		if  !missing(asdage)	& asdage!= 99
     label var age "Learner age at time of assessment"
+	replace age = -98 if inlist(age,  9998)
     *</_age_>
 
     *<_urban_>
-    gen byte urban = (inlist(sc001q01ta, 2, 3, 4, 5)) if !missing(sc001q01ta) & !inlist(sc001q01ta,98,99)
+	recode sc001q01ta (1 = 0 "Rural") (2/5 = 1 "Urban") (98/99 = -98), gen(urban)
     label var urban "School is located in urban/rural area"
     *</_urban_>
 	
 	*<_city_>
-	gen int city = 1 if (inlist(sc001q01ta, 4, 5)) 
-	replace city = 2 if (inlist(sc001q01ta, 2, 3))
-	replace city = 3 if (inlist(sc001q01ta,1))
+	recode sc001q01ta (4/5 = 1 "City") (2/3 = 2 "Town") (1 = 3 "Village") (98/99 = -98), gen(city)
 	label var city "School is located in city (1), town (2), village (3)"
 
     *<_urban_o_>
-    decode sc001q01ta, g(urban_o)
+	decode sc001q01ta, g(urban_o)
+	replace urban_o = "No Response" if inlist(urban_o, "Invalid", "No Response")
+    label define urban_o .a "Not Applicable" .b "No Response"  .z "Missing", modify
     label var urban_o "Original variable of urban: population size of the school area"
     *</_urban_o_>*/
 
     *<_male_>
-    gen byte male = (st004d01t == 2)	& !missing(st004d01t)
-    label var male "Learner gender is male/female"
+    recode st004d01t (2 = 1 "Male") (1 = 0 "Female"), gen(male)
+	label var male "Learner gender is male/female"
     *</_male_>
 	
 	*<_native_>
     gen native = immig if !inlist(immig,8,9)
+	replace native = -98 if inlist(immig,8,9)
     label var native "Learner is native (1), second-generation (2), first-generation (3)"
     *</_native_>
 	
-	*<_ece_> - Discuss further
+	*<_ece_>
 	clonevar ece = st124q01ta if !inlist(st124q01ta,7,8,9)
+	replace ece = -97 if inlist(st124q01ta, 7)
+	replace ece = -98 if inlist(st124q01ta, 8, 9)
 	label var ece "Attended early childhood education"
 	label values ece ece
 	*</_ece_>*
 
 	*<_language_>
     gen language = st022q01ta if !inlist(st022q01ta,97,98,99)
+	replace language = -97 if inlist(st022q01ta, 97)
+	replace language = -98 if inlist(st022q01ta, 98, 99)
     label var native "Language of test (1), other language (2)"
     *</_language_>
 	
 	*<_school_type_> - 
 	gen school_type = schltype if !inlist(schltype,8,9)
+	replace school_type = -98 if inlist(schltype, 8, 9)
 	label var school_type "Type of ownership and decision-making power of schools"
 	*</_school_type_>
 
@@ -301,10 +309,31 @@ use "$temp_dir\PISA_2015.dta", replace
 	}
 
     noi disp as res "{phang}Step 4 completed ($output_file){p_end}"
+	
+	
+	*--------------------------------------------------------------------
+    * 5) Labelling mising values 
+    *--------------------------------------------------------------------
+	labmv, mv(-97 .a -98 .b -99 .z ) all
+	qui label dir
+	foreach label in `r(names)' {
+		label define `label' .a "Not Applicable" .b "No Response" .z "Missing", modify
+	}
+	quiet ds
+	foreach var in `r(varlist)' {
+		local vlab : value label `var'
+		if "`vlab'"==""  {
+			label define l`var' .a "Not Applicable" .b "No Response"  .z "Missing", modify
+			capture label val `var' l`var'
+		}
+		else {
+		display "do nothing"
+		} 
+	}	
 
 
     *---------------------------------------------------------------------------
-    * 5) Bring WB countrycode & harmonization thresholds, and save dtas
+    * 6) Bring WB countrycode & harmonization thresholds, and save dtas
     *---------------------------------------------------------------------------
 
     // Brings World Bank countrycode from ccc_list
