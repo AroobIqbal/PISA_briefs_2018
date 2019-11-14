@@ -265,7 +265,7 @@ use "$temp_dir\PISA_2015.dta", replace
     label var native "Language of test (1), other language (2)"
     *</_language_>
 	
-	*<_school_type_> - 
+	*<_school_type_>
 	gen school_type = schltype if !inlist(schltype,8,9)
 	replace school_type = -98 if inlist(schltype, 8, 9)
 	label var school_type "Type of ownership and decision-making power of schools"
