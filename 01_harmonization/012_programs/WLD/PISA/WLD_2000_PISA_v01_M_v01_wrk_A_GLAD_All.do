@@ -228,33 +228,34 @@ use "$temp_dir\PISA_2000.dta", replace
 
     *<_urban_>
     recode sc01q01 (1 = 0 "Rural") (2/6 = 1 "Urban") (7 = -97) (8/9 = -99), gen(urban)
-    label var urban "School is located in urban/rural area"
+	label var urban "School is located in urban/rural area"
     *</_urban_>
 	
 	*<_city_>
 	recode sc01q01 (4/6 = 1 "City") (2/3 = 2 "Town") (1 = 3 "Village")  (7 = -97) (8/9 = -99), gen(city)
 	label var city "School is located in city (1), town (2), village (3)"
+	*<_city_>
 
     *<_urban_o_>
     decode sc01q01, g(urban_o)
 	replace urban_o = "Not Applicable" if inlist(urban_o, "N/A")
 	replace urban_o = "Missing" if inlist(urban_o, "Mis", "M/R")
-    label var urban_o "Original variable of urban: population size of the school area"
+	label var urban_o "Original variable of urban: population size of the school area"
     *</_urban_o_>*/
 
     *<_male_>
 	recode st03q01 (2 = 1 "Male") (1 = 0 "Female") (7 = -97) (8/9 = -99), gen(male)
-    label var male "Learner gender is male/female"
+	label var male "Learner gender is male/female"
     *</_male_>
 	
 	*<_native_>
     gen native = 1 if st16q02 == 1 | st16q03 == 1 
 	replace native = 2 if st16q01 == 1 & (st16q02 == 2 & st16q03 == 2)
 	replace native = 3 if st16q01 == 2 & (st16q02 == 2 & st16q03 == 2)
+    label define native 1 "native" 2 "first-generation" 3 "second-generation"
+	label value native native
     label var native "Learner is native (1), first-generation (2), second-generation (3)"
-	label define native 1 "native" 2 "first-generation" 3 "second-generation"
-	label var native native
-    *</_native_>
+	*</_native_>
 	
 	/*<_ece_> information/questions not available*/
 	
@@ -262,6 +263,8 @@ use "$temp_dir\PISA_2000.dta", replace
 	gen school_type = schltype if !inlist(schltype,7,9)
 	replace school_type = -97 if inlist(schltype, 7)
 	replace school_type = -99 if inlist(schltype, 9)
+	label define school_type 1 "Private-independent" 2 "Private-dependent" 3 "Public"
+	label value school_type school_type
 	label var school_type "Type of ownership and decision-making power of schools"
 	*</_school_type_>
 	
@@ -270,7 +273,9 @@ use "$temp_dir\PISA_2000.dta", replace
 	replace language = 2 if inlist(st17q01,2,3,4)
 	replace language = -97 if inlist(st17q01,7)
 	replace language = -99 if inlist(st17q01,8,9)
-    label var native "Language of test (1), other language (2)"
+    label define language 1 "Language of test" 2 "Other language"
+	label value language langauge 
+	label variable language "Language of test (1), other language (2)"
     *</_language_>
 
 

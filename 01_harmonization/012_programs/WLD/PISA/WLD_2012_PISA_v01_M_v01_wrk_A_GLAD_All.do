@@ -223,7 +223,6 @@ use "$temp_dir\PISA_2012.dta", replace
 	replace age = -99 if inlist(age,  9999)
     *</_age_>
 
-	
 	*<_urban_>
     recode sc03q01 (1 = 0 "Rural") (2/5 = 1 "Urban") (7 = -97) (8 = -98) (9 = -99), gen(urban)
     label var urban "School is located in urban/rural area"
@@ -251,16 +250,19 @@ use "$temp_dir\PISA_2012.dta", replace
 	*<_native_>
     gen native = immig if !inlist(immig,9)
 	replace native = -99 if inlist(immig,9)
-    label var native "Learner is native (1), first-generation (2), second-generation (3)"
+    label define native 1 "native" 2 "first-generation" 3 "second-generation"
+	label value native native
+	label var native "Learner is native (1), first-generation (2), second-generation (3)"
     *</_native_>
 	
-	*<_ece_> - 
+	*<_ece_>
 	clonevar ece = st05q01 if !inlist(st05q01,7,8,9)
 	replace ece = -97 if inlist(st05q01, 7)
 	replace ece = -98 if inlist(st05q01, 8)
 	replace ece = -99 if inlist(st05q01, 9)
 	label var ece "Attended early childhood education"
-	label values ece ece
+	label define ece 0 "No" 1 "Yes, one year or less" 2 "Yes, more than a year"
+	label value ece ece
 	*</_ece_>
 
 	*<_language_>
@@ -268,13 +270,17 @@ use "$temp_dir\PISA_2012.dta", replace
 	replace language = -97 if inlist(st25q01, 7)
 	replace language = -98 if inlist(st25q01, 8)
 	replace language = -99 if inlist(st25q01, 9)
-    label var native "Language of test (1), other language (2)"
+    label define language 1 "Language of test" 2 "Other language"
+	label value language langauge 
+	label var language "Language of test (1), other language (2)"
     *</_language_>
 
 	*<_school_type_>
 	gen school_type = schltype if !inlist(schltype,7,9)
 	replace school_type = -97 if inlist(schltype, 7)
 	replace school_type = -99 if inlist(schltype, 9)
+	label define school_type 1 "Private-independent" 2 "Private-dependent" 3 "Public"
+	label value school_type school_type
 	label var school_type "Type of ownership and decision-making power of schools"
 	*</_school_type_>
 	

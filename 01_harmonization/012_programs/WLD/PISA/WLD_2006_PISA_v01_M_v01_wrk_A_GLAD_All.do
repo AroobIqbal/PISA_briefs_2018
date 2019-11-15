@@ -241,6 +241,8 @@ use "$temp_dir\PISA_2006.dta", replace
     gen native = immig if !inlist(immig,7,9)
     replace native = -97 if inlist(immig,7)
 	replace native = -99 if inlist(immig,9)
+	label define native 1 "native" 2 "first-generation" 3 "second-generation"
+	label value native native
 	label var native "Learner is native (1), first-generation (2), second-generation (3)"
     *</_native_>
 	
@@ -257,13 +259,17 @@ use "$temp_dir\PISA_2006.dta", replace
 	replace language = -97 if inlist(st12q01, 7)
 	replace language = -98 if inlist(st12q01, 8)
     replace language = -99 if inlist(st12q01, 9)
-	label var native "Language of test (1), other language (2)"
+	label define language 1 "Language of test" 2 "Other language"
+	label value language langauge 
+	label variable language "Language of test (1), other language (2)"
     *</_language_>
 	
 	*<_school_type_>
 	gen school_type = schltype if !inlist(schltype,7,9)
 	replace school_type = -97 if inlist(schltype,7)
 	replace school_type = -99 if inlist(schltype,9)
+	label define school_type 1 "Private-independent" 2 "Private-dependent" 3 "Public"
+	label value school_type school_type
 	label var school_type "Type of ownership and decision-making power of schools"
 	*</_school_type_>
 
