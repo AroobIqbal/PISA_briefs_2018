@@ -251,7 +251,7 @@ use "$temp_dir\PISA_2009.dta", replace
 	replace ece = -98 if inlist(st05q01, 8)
 	replace ece = -99 if inlist(st05q01, 9)
 	label var ece "Attended early childhood education"
-	label define ece 1 "No" 2 "<=1 year" 3 ">1 year"
+	label define ece 1 "No" 2 "ECE1" 3 "ECE2"
 	label value ece ece
 	*</_ece_>
 	
@@ -260,7 +260,7 @@ use "$temp_dir\PISA_2009.dta", replace
 	replace language = -97 if inlist(st19q01, 7)
 	replace language = -98 if inlist(st19q01,8)
     replace language = -99 if inlist(st19q01,9)
-	label define language 1 "Language of test" 2 "Other language"
+	label define language 1 "Test" 2 "Other"
 	label value language langauge 
 	label var language "Language of test (1), other language (2)"
     *</_language_>
@@ -270,7 +270,7 @@ use "$temp_dir\PISA_2009.dta", replace
 	replace school_type = -97 if schtype == 7
 	replace school_type = -98 if schtype == 8
 	replace school_type = -99 if schtype == 9
-	label define school_type 1 "PrivateIND" 2 "PrivateDEP" 3 "Public"
+	label define school_type 1 "PvtIND" 2 "PvtDEP" 3 "Public"
 	label value school_type school_type
 	label var school_type "Type of ownership and decision-making power of schools"
 	*</_school_type_>

@@ -257,7 +257,7 @@ use "$temp_dir\PISA_2015.dta", replace
 	replace ece = -97 if inlist(st124q01ta, 7)
 	replace ece = -98 if inlist(st124q01ta, 8, 9)
 	label var ece "Attended early childhood education"
-	label define ece 1 "No" 2 "<=1 year" 3 ">1 year", modify
+	label define ece 1 "No" 2 "ECE1" 3 "ECE2", modify
 	label value ece ece
 	*</_ece_>*
 
@@ -265,7 +265,7 @@ use "$temp_dir\PISA_2015.dta", replace
     gen language = st022q01ta if !inlist(st022q01ta,97,98,99)
 	replace language = -97 if inlist(st022q01ta, 97)
 	replace language = -98 if inlist(st022q01ta, 98, 99)
-    label define language 1 "Language of test" 2 "Other language"
+    label define language 1 "Test" 2 "Other"
 	label value language langauge 
 	label var language "Language of test (1), other language (2)"
     *</_language_>
@@ -273,7 +273,7 @@ use "$temp_dir\PISA_2015.dta", replace
 	*<_school_type_>
 	gen school_type = schltype if !inlist(schltype,8,9)
 	replace school_type = -98 if inlist(schltype, 8, 9)
-	label define school_type 1 "PrivateIND" 2 "PrivateDEP" 3 "Public"
+	label define school_type 1 "PvtIND" 2 "PvtDEP" 3 "Public"
 	label value school_type school_type
 	label var school_type "Type of ownership and decision-making power of schools"
 	*</_school_type_>

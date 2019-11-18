@@ -259,7 +259,7 @@ use "$temp_dir\PISA_2006.dta", replace
 	replace language = -97 if inlist(st12q01, 7)
 	replace language = -98 if inlist(st12q01, 8)
     replace language = -99 if inlist(st12q01, 9)
-	label define language 1 "Language of test" 2 "Other language"
+	label define language 1 "Test" 2 "Other"
 	label value language langauge 
 	label variable language "Language of test (1), other language (2)"
     *</_language_>
@@ -268,7 +268,7 @@ use "$temp_dir\PISA_2006.dta", replace
 	gen school_type = schltype if !inlist(schltype,7,9)
 	replace school_type = -97 if inlist(schltype,7)
 	replace school_type = -99 if inlist(schltype,9)
-	label define school_type 1 "PrivateIND" 2 "PrivateDEP" 3 "Public"
+	label define school_type 1 "PvtIND" 2 "PvtDEP" 3 "Public"
 	label value school_type school_type
 	label var school_type "Type of ownership and decision-making power of schools"
 	*</_school_type_>
