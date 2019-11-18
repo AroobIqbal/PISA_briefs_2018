@@ -58,6 +58,14 @@ foreach cc of local cnt {
 
 
 		use "$output_dir/WLD_`year'_PISA_v01_M_wrk_A_GLAD.dta", clear
+		
+		* Creating locals to accomodate additonal subjects added in later years 
+		if inlist(`year', 2000, 2003, 2006, 2009){
+		     local subject "read math scie"
+		else if inlist(`year', 2012, 2015) {
+		     local subject "read math scie flit"
+		    }
+		  }
 
 		
 		keep if countrycode == "`cc'"
@@ -74,7 +82,7 @@ foreach cc of local cnt {
 			label values total total
 			local traitvars total 
 							
-			foreach sub in read math scie {
+			foreach sub of local subject {
 				foreach indicator in score {
 					foreach trait of local traitvars  {
 					capture confirm variable `trait'
