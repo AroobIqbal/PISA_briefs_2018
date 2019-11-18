@@ -56,4 +56,19 @@ Source: PISA 2012 Technical Report_Chapter 16, page 308.
 (2) government-dependent private schools
 (3) public schools
 
+2. Defining the variable 'native' 
+Non-immigrant students are students whose mother or father (or both) was/were born in the country or economy where they sat the PISA test, regardless of whether the student himself or herself was born in that country or economy
+First-generation immigrant students are foreign-born students whose parents are also both foreign-born.
+Second-generation immigrant students are students born in the country/economy where they sat the PISA test and whose parents are both foreign-born. 
+Source: PISA 2015 results report, Chapter 7, Box 1.7.1, page 243
+
 */
+
+
+/* PISA 2003 do file
+
+1. Defining the variable 'native' 
+Re-defined this variable using the PISA 2015 defiition. 
+Refer to the PISA 2003 data analysis manual, page 373 and the PISA 2015 results report, Chapter 7, Box 1.7.1, page 243.
+
+*/ 

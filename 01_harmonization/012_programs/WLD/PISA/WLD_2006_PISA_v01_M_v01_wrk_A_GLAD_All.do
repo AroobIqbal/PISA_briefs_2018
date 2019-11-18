@@ -241,9 +241,9 @@ use "$temp_dir\PISA_2006.dta", replace
     gen native = immig if !inlist(immig,7,9)
     replace native = -97 if inlist(immig,7)
 	replace native = -99 if inlist(immig,9)
-	label define native 1 "native" 2 "first-generation" 3 "second-generation"
+	label define native 1 "N" 2 "SG" 3 "FG"
 	label value native native
-	label var native "Learner is native (1), first-generation (2), second-generation (3)"
+	label var native "Learner is native (1), second-generation (2), first-generation (3)"
     *</_native_>
 	
 	/*<_ece_> - Does not seem to be available
@@ -268,7 +268,7 @@ use "$temp_dir\PISA_2006.dta", replace
 	gen school_type = schltype if !inlist(schltype,7,9)
 	replace school_type = -97 if inlist(schltype,7)
 	replace school_type = -99 if inlist(schltype,9)
-	label define school_type 1 "Private-independent" 2 "Private-dependent" 3 "Public"
+	label define school_type 1 "PrivateIND" 2 "PrivateDEP" 3 "Public"
 	label value school_type school_type
 	label var school_type "Type of ownership and decision-making power of schools"
 	*</_school_type_>
@@ -314,6 +314,9 @@ use "$temp_dir\PISA_2006.dta", replace
 
     noi disp as res "{phang}Step 4 completed ($output_file){p_end}"
 
+	label define escs_quintile 1 "q1" 2 "q2" 3 "q3" 4 "q4" 5 "q5", modify
+	label value escs_quintile escs_quintile
+	label var escs_quintile "Income quantile"
 	
 	*--------------------------------------------------------------------
     * 5) Labelling mising values 

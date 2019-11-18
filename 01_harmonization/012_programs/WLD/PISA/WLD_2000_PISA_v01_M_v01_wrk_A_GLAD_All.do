@@ -252,9 +252,9 @@ use "$temp_dir\PISA_2000.dta", replace
     gen native = 1 if st16q02 == 1 | st16q03 == 1 
 	replace native = 2 if st16q01 == 1 & (st16q02 == 2 & st16q03 == 2)
 	replace native = 3 if st16q01 == 2 & (st16q02 == 2 & st16q03 == 2)
-    label define native 1 "native" 2 "first-generation" 3 "second-generation"
+    label define native 1 "N" 2 "SG" 3 "FG"
 	label value native native
-    label var native "Learner is native (1), first-generation (2), second-generation (3)"
+    label var native "Learner is native (1), second-generation (2), first-generation (3)"
 	*</_native_>
 	
 	/*<_ece_> information/questions not available*/
@@ -263,7 +263,7 @@ use "$temp_dir\PISA_2000.dta", replace
 	gen school_type = schltype if !inlist(schltype,7,9)
 	replace school_type = -97 if inlist(schltype, 7)
 	replace school_type = -99 if inlist(schltype, 9)
-	label define school_type 1 "Private-independent" 2 "Private-dependent" 3 "Public"
+	label define school_type 1 "PrivateIND" 2 "PrivateDEP" 3 "Public"
 	label value school_type school_type
 	label var school_type "Type of ownership and decision-making power of schools"
 	*</_school_type_>
@@ -322,6 +322,12 @@ use "$temp_dir\PISA_2000.dta", replace
 	}
 
     noi disp as res "{phang}Step 4 completed ($output_file){p_end}"
+	
+	foreach q in escs_quintile_read escs_quintile_math escs_quintile_scie  {
+	label define `q' 1 "q1" 2 "q2" 3 "q3" 4 "q4" 5 "q5", modify
+	label value `q' escs_quintile
+	label var `q' "Income quantile"
+	}
 	
 	*-------------------------------------------------------------------------------
 	* 5) Labelling missing values

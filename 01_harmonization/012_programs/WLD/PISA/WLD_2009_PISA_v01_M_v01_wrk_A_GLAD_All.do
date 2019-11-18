@@ -240,9 +240,9 @@ use "$temp_dir\PISA_2009.dta", replace
     gen native = immig if !inlist(immig,7,9)
     replace native = -97 if inlist(immig,7)
 	replace native = -99 if inlist(immig,9)
-	label define native 1 "native" 2 "first-generation" 3 "second-generation"
+	label define native 1 "N" 2 "SG" 3 "FG"
 	label value native native
-	label var native "Learner is native (1), first-generation (2), second-generation (3)"
+	label var native "Learner is native (1), second-generation (2), first-generation (3)"
     *</_native_>
 	
 	*<_ece_>
@@ -251,7 +251,7 @@ use "$temp_dir\PISA_2009.dta", replace
 	replace ece = -98 if inlist(st05q01, 8)
 	replace ece = -99 if inlist(st05q01, 9)
 	label var ece "Attended early childhood education"
-	label define ece 0 "No" 1 "Yes, one year or less" 2 "Yes, more than a year"
+	label define ece 1 "No" 2 "<=1 year" 3 ">1 year"
 	label value ece ece
 	*</_ece_>
 	
@@ -270,7 +270,7 @@ use "$temp_dir\PISA_2009.dta", replace
 	replace school_type = -97 if schtype == 7
 	replace school_type = -98 if schtype == 8
 	replace school_type = -99 if schtype == 9
-	label define school_type 1 "Private-independent" 2 "Private-dependent" 3 "Public"
+	label define school_type 1 "PrivateIND" 2 "PrivateDEP" 3 "Public"
 	label value school_type school_type
 	label var school_type "Type of ownership and decision-making power of schools"
 	*</_school_type_>
@@ -314,7 +314,10 @@ use "$temp_dir\PISA_2009.dta", replace
 	}
 
     noi disp as res "{phang}Step 4 completed ($output_file){p_end}"
-
+	
+	label define escs_quintile 1 "q1" 2 "q2" 3 "q3" 4 "q4" 5 "q5", modify
+	label value escs_quintile escs_quintile
+	label var escs_quintile "Income quantile"
 
 	*--------------------------------------------------------------------
     * 5) Labelling mising values 
