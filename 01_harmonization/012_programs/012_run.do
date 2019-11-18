@@ -24,6 +24,7 @@ global shortcut = "${shortcut_GLAD}"  // NEVER COMMIT ANY CHANGES IN THIS LINE
 * Global paths that may serve as input and output for this task
 global input  "${network}/GDB/HLO_Database" // Where EDURAW files will be read from if datalibweb==0
 global input_raw  "${clone}/01_harmonization/011_rawdata"  // Where GLAD.dta files will be read from if datalibweb==0
+global temp  "${clone}/01_harmonization/013_outputs/TEMP/TEMP_WLD_All_PISA"  // Where GLAD.dta files will be read from if datalibweb==0
 global output "${clone}/01_harmonization/013_outputs"  // Where CLO.dta files will be saved
 * Locals input_dir and output_dir point to subfolders of those globals, for each region_year_assessment
 *-------------------------------------------------------------------------------
