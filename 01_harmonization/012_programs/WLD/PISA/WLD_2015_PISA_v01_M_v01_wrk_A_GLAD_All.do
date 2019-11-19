@@ -266,7 +266,7 @@ use "$temp_dir\PISA_2015.dta", replace
 	replace language = -97 if inlist(st022q01ta, 97)
 	replace language = -98 if inlist(st022q01ta, 98, 99)
     label define language 1 "Test" 2 "Other"
-	label value language langauge 
+	label value language language
 	label var language "Language of test (1), other language (2)"
     *</_language_>
 	
