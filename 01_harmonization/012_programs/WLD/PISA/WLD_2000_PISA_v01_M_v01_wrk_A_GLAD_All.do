@@ -323,11 +323,18 @@ use "$temp_dir\PISA_2000.dta", replace
 
     noi disp as res "{phang}Step 4 completed ($output_file){p_end}"
 	
-	foreach q in escs_quintile_read escs_quintile_math escs_quintile_scie  {
-	label define `q' 1 "q1" 2 "q2" 3 "q3" 4 "q4" 5 "q5", modify
-	label value `q' escs_quintile
-	label var `q' "Income quantile"
-	}
+	*removed the loop for labelling as it wasn't labelling correctly 
+    label define escs_quintile_read 1 "Rq1" 2 "Rq2" 3 "Rq3" 4 "Rq4" 5 "Rq5", modify
+	label value escs_quintile_read escs_quintile_read
+	label var escs_quintile_read "Income quantile"
+	
+	label define escs_quintile_math 1 "Mq1" 2 "Mq2" 3 "Mq3" 4 "Mq4" 5 "Mq5", modify
+	label value escs_quintile_math escs_quintile_math
+	label var escs_quintile_math "Income quantile"
+	
+	label define escs_quintile_scie 1 "Sq1" 2 "Sq2" 3 "Sq3" 4 "Sq4" 5 "Sq5", modify
+	label value escs_quintile_scie escs_quintile_scie
+	label var escs_quintile_scie "Income quantile"
 	
 	*-------------------------------------------------------------------------------
 	* 5) Labelling missing values
