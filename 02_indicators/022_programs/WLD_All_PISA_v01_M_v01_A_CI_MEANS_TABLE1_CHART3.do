@@ -81,7 +81,7 @@ foreach cc of local cnt {
 			gen total = 1
 			label define total 1 "total"
 			label values total total
-			local traitvars male urban native escs_quintile* ece* language school_type
+			local traitvars male urban native escs_quintile escs_quintile_read escs_quintile_math escs_quintile_scie ece* language school_type city 
 							
 			foreach sub of local subject {
 				foreach indicator in score {
@@ -141,7 +141,8 @@ foreach cc of local cnt {
 	}
 	*restore
 }
-*Appending and exporting to CCC.xlsx
+
+*Appending and exporting to CC.xlsx
 use "$input_raw/master_countrycode_list.dta", clear
 keep if assessment == "PISA"
 *Testing for one country:
@@ -151,8 +152,8 @@ set trace on
 foreach cc of local cnt {
 
 	levelsof year if countrycode == "`cc'", local(yr)
-	
-	touch "$temp/Brief_`ccc'.dta", replace
+
+	touch "$temp/Brief_`cc'.dta", replace
 	gen year = .
 	foreach year of local yr {
 	
@@ -196,6 +197,6 @@ foreach cc of local cnt {
 	save "$temp\temp_ALL_PISA_v01_M_v01_A_CI_MEANS_`cc'.dta"
 	sort countrycode year 
 	order countrycode year national_level 
-	export excel using "$output\BRIEFS\`cc'.xlsx", sheetreplace sheet("Data_Means_`ccc'") firstrow(variables)
+	export excel using "$output\BRIEFS\`cc'.xlsx", sheetreplace sheet("Data_Means_Chart3") firstrow(variables)
 }
 }
