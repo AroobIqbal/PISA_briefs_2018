@@ -136,7 +136,7 @@ foreach cc of local cnt {
 			
 			keep countrycode national_level idgrade age m_* se_* n_*	
 			collapse m_* se_* n_* idgrade age, by(countrycode national_level)
-			save "$temp_dir\temp_`year'_PISA_v01_M_v01_A_CI_MEANS_`cc'.dta", replace
+			save "$temp_dir\temp_`year'_PISA_v01_M_v01_A_CI_MEANS_subgroups.dta", replace
 		}
 	}
 	*restore
@@ -192,11 +192,11 @@ foreach cc of local cnt {
 		local time  = subinstr("$S_TIME",":","-",.)
 
 
-	append using "$temp_dir\temp_`year'_PISA_v01_M_v01_A_CI_MEANS_`cc'.dta", replace
+	append using "$temp_dir\temp_`year'_PISA_v01_M_v01_A_CI_MEANS_subgroups.dta", replace
 	replace year = `year' if !missing(year)
-	save "$temp\temp_ALL_PISA_v01_M_v01_A_CI_MEANS_`cc'.dta"
+	save "$temp\temp_ALL_PISA_v01_M_v01_A_CI_MEANS_subgroups.dta"
 	sort countrycode year 
 	order countrycode year national_level 
-	export excel using "$output\BRIEFS\`cc'.xlsx", sheetreplace sheet("Data_Means_Chart3") firstrow(variables)
+	export excel using "$output\BRIEFS\`cc'.xlsx", sheetreplace sheet("Data_Means_subgroups") firstrow(variables)
 }
 }
