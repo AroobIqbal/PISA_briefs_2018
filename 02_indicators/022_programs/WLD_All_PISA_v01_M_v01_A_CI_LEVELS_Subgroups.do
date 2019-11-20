@@ -96,7 +96,7 @@ foreach cc of local cnt {
 			foreach sub of local subject {
 				levelsof level_pisa_`sub'_1, local(lev)
 				foreach l of local lev {
-					forvalues i = 1(1)5 {
+					foreach i of local pvvalues {
 						gen blev`l'_pisa_`sub'_`i' = (level_pisa_`sub'_`i' == "`l'") & !missing(level_pisa_`sub'_`i')
 					}
 				}
