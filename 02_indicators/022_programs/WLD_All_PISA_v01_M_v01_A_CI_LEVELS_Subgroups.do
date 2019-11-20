@@ -149,11 +149,11 @@ foreach cc of local cnt {
 							* Create variables to store estimates (mean and std error of mean) and num of obs (N)
 									matrix pv_mean = e(b)
 									matrix pv_var  = e(V)
-									gen  m_`indicator'`sub'`label'  = pv_mean[1,1]
+									gen  pct_`indicator'`sub'`label'  = pv_mean[1,1]
 									gen  se_`indicator'`sub'`label' = sqrt(pv_var[1,1])
 									gen  n_`indicator'`sub'`label'  = e(N)
 									
-									label var  m_`indicator'`sub'`label'  "Mean of `sub' `indicator' by - `label'"
+									label var  pct_`indicator'`sub'`label'  "Pct of `sub' `indicator' by - `label'"
 									label var se_`indicator'`sub'`label' "Standard error of `sub' `indicator' by  - `label'"
 									label var n_`indicator'`sub'`label'  "Number of observations used to calculate `sub' `indicator' by - `label'"
 								}
@@ -164,8 +164,27 @@ foreach cc of local cnt {
 			}
 			
 			keep countrycode national_level idgrade age m_* se_* n_*	
+			
+			
+			*copy variable lables before collapse 	
+				foreach v of var * {
+				local l`v' : variable label `v'
+				  if `"`l`v''"' == "" {
+					local l`v' "`v'"
+				}
+			 }
+			
+			
 			collapse m_* se_* n_* idgrade age, by(countrycode national_level)
+			
+			*attach the saved labels after collapse 
+				foreach v of var * {
+				label var `v' "`l`v''"
+			  }
+			
+			
 			save "$temp_dir\temp_`year'_PISA_v01_M_v01_A_CI_LEVELS_Subgroups_`cc'.dta", replace
+		
 		}
 	}
 	*restore

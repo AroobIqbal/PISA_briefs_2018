@@ -142,7 +142,23 @@ foreach cc of local cnt {
 			}
 			
 			keep countrycode national_level idgrade age m_* se_* n_*	
+			
+			*copy variable lables before collapse 	
+				foreach v of var * {
+				local l`v' : variable label `v'
+				  if `"`l`v''"' == "" {
+					local l`v' "`v'"
+				}
+			 }
+			
+			
 			collapse m_* se_* n_* idgrade age, by(countrycode national_level)
+			
+			*attach the saved labels after collapse 
+				foreach v of var * {
+				label var `v' "`l`v''"
+			  }
+			
 			save "$temp_dir\temp_`year'_PISA_v01_M_v01_A_CI_MEANS_Subgroups_`cc'.dta", replace
 		}
 	}
