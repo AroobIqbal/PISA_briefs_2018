@@ -61,95 +61,116 @@ foreach cc of local cnt {
 		use "$output_dir/WLD_`year'_PISA_v01_M_wrk_A_GLAD.dta", clear
 		
 		* Creating locals to accomodate additonal subjects added in later years 
-		if inlist(`year',2000,2003,2006,2009){
+		if inlist(`year',2000,2003,2006,2009) {
 		     local subject "read math scie"
-		else if inlist(`year', 2012, 2015) {
+		}
+		else if inlist(`year',2012,2015) {
 		     local subject "read math scie flit"
-		    }
-		  }
-
-		  
-		  * Creating locals to account for differences in number of pv values across years 
+		}
+		
+		
+		
+		* Creating locals to account for differences in number of pv values across years 
 		if inlist(`year',2000,2003,2006,2009,2012) {
 		     local pvvalues 1/5
 		else if inlist(`year',2015) {
 		     local pvvalues 1/10
 		    }
 		  }
-		  	  
+		  
+		  
 		keep if countrycode == "`cc'"
 		
 		count
 		if r(N) > 0 {
+		
+			*---------------------------------------------------------------------------------
+			* 1) Calculating levels
+			*---------------------------------------------------------------------------------
+			foreach var of varlist level* {
+				replace `var' = "" if `var' == "-99"
+				replace `var' = "below1b" if `var' == "<1b"
+				replace `var' = "below1" if `var' == "<1"
+			}
+
+			foreach sub of local subject {
+				levelsof level_pisa_`sub'_1, local(lev)
+				foreach l of local lev {
+					forvalues i = 1(1)5 {
+						gen blev`l'_pisa_`sub'_`i' = (level_pisa_`sub'_`i' == "`l'") & !missing(level_pisa_`sub'_`i')
+					}
+				}
+			}		
 
 			*--------------------------------------------------------------------------------
-			* 1) Separating indicators by trait groups
+			* 2) Separating indicators by trait groups
 			*--------------------------------------------------------------------------------
 			
 			gen total = 1
 			label define total 1 "total"
 			label values total total
 			local traitvars male urban native escs_quintile escs_quintile_read escs_quintile_math escs_quintile_scie ece* language school_type city 
-							
+			set trace on				
 			foreach sub of local subject {
-				foreach indicator in score {
-					foreach trait of local traitvars  {
-					capture confirm variable `trait'
-						if !_rc { 
-						    mdesc `trait'
-							if r(percent) != 100 {
-							   foreach i of local pvvalues {
-								separate(`indicator'_pisa_`sub'_`i'), by(`trait') gen(`indicator'`sub'`i'`trait')
-								ren `indicator'`sub'`i'`trait'* `indicator'`sub'`trait'*_`i'	  
-						 }
-			      }
-						
+				foreach indicator in blevbelow1b  blev1b blev1a blevbelow1 blev1 blev2 blev3 blev4 blev5 blev6 {
+					capture confirm variable `indicator'_pisa_`sub'_1
+					if !_rc {
+						foreach trait of local traitvars  {
+							capture confirm variable `trait'
+							if !_rc { 
+							       mdesc `trait'
+							       if r(percent) != 100 {
+								foreach i of local pvvalues {
+									separate(`indicator'_pisa_`sub'_`i'), by(`trait') gen(`indicator'`sub'`i'`trait')
+									ren `indicator'`sub'`i'`trait'* `indicator'`sub'`trait'*_`i'
+								}
+						  }
+							
 	*-----------------------------------------------------------------------------
 	*2) *Calculation of indicators by subgroups of traitvars
 	*-----------------------------------------------------------------------------
-							levelsof `trait', local(lev)
-							foreach lv of local lev {
-								local label: label (`trait') `lv'
+								levelsof `trait', local(lev)
+								foreach lv of local lev {
+									local label: label (`trait') `lv'
 
-								
-								if `year' == 2000 {
-								
-									cap qui: pv, pv(`indicator'`sub'`trait'`lv'_*) weight(learner_weight_`sub') brr rw(weight_replicate_`sub'*) fays(0.5): mean @pv [aw=@w]
+									
+									if `year' == 2000 {
+									
+										pv, pv(`indicator'`sub'`trait'`lv'_*) weight(learner_weight_`sub') brr rw(weight_replicate_`sub'*) fays(0.5): mean @pv [aw=@w]
+									}
+									
+									if inlist(`year',2003,2006,2009,2012,2015) {
+															
+										pv, pv(`indicator'`sub'`trait'`lv'_*) weight(learner_weight) brr rw(weight_replicate*) fays(0.5): mean @pv [aw=@w]
+									}
+
+
+							
+							* Create variables to store estimates (mean and std error of mean) and num of obs (N)
+									matrix pv_mean = e(b)
+									matrix pv_var  = e(V)
+									gen  m_`indicator'`sub'`label'  = pv_mean[1,1]
+									gen  se_`indicator'`sub'`label' = sqrt(pv_var[1,1])
+									gen  n_`indicator'`sub'`label'  = e(N)
+									
+									label var  m_`indicator'`sub'`label'  "Mean of `sub' `indicator' by - `label'"
+									label var se_`indicator'`sub'`label' "Standard error of `sub' `indicator' by  - `label'"
+									label var n_`indicator'`sub'`label'  "Number of observations used to calculate `sub' `indicator' by - `label'"
 								}
-								
-								if `year' != 2000 {
-														
-									cap qui: pv, pv(`indicator'`sub'`trait'`lv'_*) weight(learner_weight) brr rw(weight_replicate*) fays(0.5): mean @pv [aw=@w]
-								}
-
-
-								
-								* Create variables to store estimates (mean and std error of mean) and num of obs (N)
-								matrix pv_mean = e(b)
-								matrix pv_var  = e(V)
-								gen  m_`indicator'`sub'`label'  = pv_mean[1,1]
-								gen  se_`indicator'`sub'`label' = sqrt(pv_var[1,1])
-								gen  n_`indicator'`sub'`label'  = e(N)
-								
-								label var  m_`indicator'`sub'`label'  "Mean of `sub' `indicator' by - `label'"
-								label var se_`indicator'`sub'`label' "Standard error of `sub' `indicator' by  - `label'"
-								label var n_`indicator'`sub'`label'  "Number of observations used to calculate `sub' `indicator' by - `label'"
-
-							}	
+							}
 						}
 					}
 				}
 			}
-			
 			keep countrycode national_level idgrade age m_* se_* n_*	
 			collapse m_* se_* n_* idgrade age, by(countrycode national_level)
-			save "$temp_dir\temp_`year'_PISA_v01_M_v01_A_CI_MEANS_subgroups.dta", replace
+			save "$temp_dir\temp_`year'_PISA_v01_M_v01_A_CI_LEVELS_Subgroups.dta", replace
 		}
 	}
 	*restore
 }
 
-*Appending and exporting to CC.xlsx
+*Appending and exporting to CCC.xlsx
 use "$input_raw/master_countrycode_list.dta", clear
 keep if assessment == "PISA"
 *Testing for one country:
@@ -159,8 +180,8 @@ set trace on
 foreach cc of local cnt {
 
 	levelsof year if countrycode == "`cc'", local(yr)
-
-	touch "$temp/Brief_`cc'.dta", replace
+	
+	touch "$temp/Brief_`cc'_LEVELS.dta", replace
 	gen year = .
 	foreach year of local yr {
 	
@@ -199,11 +220,12 @@ foreach cc of local cnt {
 		local time  = subinstr("$S_TIME",":","-",.)
 
 
-	append using "$temp_dir\temp_`year'_PISA_v01_M_v01_A_CI_MEANS_subgroups.dta", replace
+	append using "$temp_dir\temp_`year'_PISA_v01_M_v01_A_CI_LEVELS_Subgroups.dta", replace
 	replace year = `year' if !missing(year)
-	save "$temp\temp_ALL_PISA_v01_M_v01_A_CI_MEANS_`cc'.dta"
+	save "$temp\temp_ALL_PISA_v01_M_v01_A_CI_LEVELS_`cc'.dta"
 	sort countrycode year 
 	order countrycode year national_level 
-	export excel using "$output\BRIEFS\`cc'.xlsx", sheetreplace sheet("Data_Means_subgroups") firstrow(variables)
+	export excel using "$output\BRIEFS\`cc'.xlsx", sheetreplace sheet("Data_Levels_Subgroups") firstrow(variables)
 }
 }
+
