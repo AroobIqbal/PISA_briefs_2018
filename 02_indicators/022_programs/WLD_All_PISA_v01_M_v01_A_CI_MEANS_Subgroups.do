@@ -71,9 +71,9 @@ foreach cc of local cnt {
 		  
 		  * Creating locals to account for differences in number of pv values across years 
 		if inlist(`year',2000,2003,2006,2009,2012) {
-		     local pvvalues 1/5
+		     local pvvalues 1 2 3 4 5 
 		else if inlist(`year',2015) {
-		     local pvvalues 1/10
+		     local pvvalues 1 2 3 4 5 6 7 8 9 10
 		    }
 		  }
 		  	  
@@ -103,7 +103,7 @@ foreach cc of local cnt {
 								ren `indicator'`sub'`i'`trait'* `indicator'`sub'`trait'*_`i'	  
 						 }
 			      }
-						
+					
 	*-----------------------------------------------------------------------------
 	*2) *Calculation of indicators by subgroups of traitvars
 	*-----------------------------------------------------------------------------
@@ -143,7 +143,7 @@ foreach cc of local cnt {
 			
 			keep countrycode national_level idgrade age m_* se_* n_*	
 			collapse m_* se_* n_* idgrade age, by(countrycode national_level)
-			save "$temp_dir\temp_`year'_PISA_v01_M_v01_A_CI_MEANS_subgroups.dta", replace
+			save "$temp_dir\temp_`year'_PISA_v01_M_v01_A_CI_MEANS_Subgroups.dta", replace
 		}
 	}
 	*restore
@@ -199,11 +199,11 @@ foreach cc of local cnt {
 		local time  = subinstr("$S_TIME",":","-",.)
 
 
-	append using "$temp_dir\temp_`year'_PISA_v01_M_v01_A_CI_MEANS_subgroups.dta", replace
+	append using "$temp_dir\temp_`year'_PISA_v01_M_v01_A_CI_MEANS_Subgroups.dta", replace
 	replace year = `year' if !missing(year)
-	save "$temp\temp_ALL_PISA_v01_M_v01_A_CI_MEANS_`cc'.dta"
+	save "$temp\temp_ALL_PISA_v01_M_v01_A_CI_MEANS_Subgroups.dta"
 	sort countrycode year 
 	order countrycode year national_level 
-	export excel using "$output\BRIEFS\`cc'.xlsx", sheetreplace sheet("Data_Means_subgroups") firstrow(variables)
+	export excel using "$output\BRIEFS\`cc'.xlsx", sheetreplace sheet("Data_Means_Subgroups") firstrow(variables)
 }
 }
