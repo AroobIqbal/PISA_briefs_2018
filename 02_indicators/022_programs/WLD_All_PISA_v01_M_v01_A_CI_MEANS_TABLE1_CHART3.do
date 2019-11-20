@@ -194,7 +194,7 @@ foreach cc of local cnt {
 
 	append using "$temp_dir\temp_`year'_PISA_v01_M_v01_A_CI_MEANS_subgroups.dta", replace
 	replace year = `year' if !missing(year)
-	save "$temp\temp_ALL_PISA_v01_M_v01_A_CI_MEANS_subgroups.dta"
+	save "$temp\temp_ALL_PISA_v01_M_v01_A_CI_MEANS_`cc'.dta"
 	sort countrycode year 
 	order countrycode year national_level 
 	export excel using "$output\BRIEFS\`cc'.xlsx", sheetreplace sheet("Data_Means_subgroups") firstrow(variables)
