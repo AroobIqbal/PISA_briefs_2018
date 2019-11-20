@@ -215,7 +215,7 @@ use "$temp_dir\PISA_2000.dta", replace
 
 
     // TRAIT Vars: - Add more as needed - Go through PISA
-    local traitvars	"age urban* male escs escs_quintile_read native city escs_quintile_math escs_quintile_scie school_type language"
+    local traitvars	"age urban* male escs escs_q_read native city escs_q_math escs_q_scie school_type language"
 
     *<_age_>
 	recode age (997 999 = .z), gen(age_n)
@@ -309,14 +309,14 @@ use "$temp_dir\PISA_2000.dta", replace
     *</_escs_>
 	
 	*</_escs_quintile_>
-	gen escs_quintile_read = .
-	gen escs_quintile_math = .
-	gen escs_quintile_scie = .
+	gen escs_q_read = .
+	gen escs_q_math = .
+	gen escs_q_scie = .
 	levelsof idcntry_raw, local (c)
 	foreach cc of local c {
 		foreach subject in read math scie {
 			_ebin escs [weight = learner_weight_`subject'] if idcntry_raw == "`cc'" , gen(q_`subject'_`cc') nquantiles(5)
-			replace escs_quintile_`subject' = q_`subject'_`cc' if missing(escs_quintile_`subject')
+			replace escs_q_`subject' = q_`subject'_`cc' if missing(escs_q_`subject')
 			drop q_`subject'_`cc'
 		}
 	}
@@ -324,17 +324,17 @@ use "$temp_dir\PISA_2000.dta", replace
     noi disp as res "{phang}Step 4 completed ($output_file){p_end}"
 	
 	*removed the loop for labelling as it wasn't labelling correctly 
-    label define escs_quintile_read 1 "Rq1" 2 "Rq2" 3 "Rq3" 4 "Rq4" 5 "Rq5", modify
-	label value escs_quintile_read escs_quintile_read
-	label var escs_quintile_read "Income quantile"
+    label define escs_q_read 1 "Rq1" 2 "Rq2" 3 "Rq3" 4 "Rq4" 5 "Rq5", modify
+	label value escs_q_read escs_q_read
+	label var escs_q_read "Income quantile"
 	
-	label define escs_quintile_math 1 "Mq1" 2 "Mq2" 3 "Mq3" 4 "Mq4" 5 "Mq5", modify
-	label value escs_quintile_math escs_quintile_math
-	label var escs_quintile_math "Income quantile"
+	label define escs_q_math 1 "Mq1" 2 "Mq2" 3 "Mq3" 4 "Mq4" 5 "Mq5", modify
+	label value escs_q_math escs_q_math
+	label var escs_q_math "Income quantile"
 	
-	label define escs_quintile_scie 1 "Sq1" 2 "Sq2" 3 "Sq3" 4 "Sq4" 5 "Sq5", modify
-	label value escs_quintile_scie escs_quintile_scie
-	label var escs_quintile_scie "Income quantile"
+	label define escs_q_scie 1 "Sq1" 2 "Sq2" 3 "Sq3" 4 "Sq4" 5 "Sq5", modify
+	label value escs_q_scie escs_q_scie
+	label var escs_q_scie "Income quantile"
 	
 	*-------------------------------------------------------------------------------
 	* 5) Labelling missing values
