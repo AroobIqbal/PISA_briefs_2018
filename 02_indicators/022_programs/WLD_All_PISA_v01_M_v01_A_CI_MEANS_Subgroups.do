@@ -143,7 +143,7 @@ foreach cc of local cnt {
 			
 			keep countrycode national_level idgrade age m_* se_* n_*	
 			collapse m_* se_* n_* idgrade age, by(countrycode national_level)
-			save "$temp_dir\temp_`year'_PISA_v01_M_v01_A_CI_MEANS_Subgroups.dta", replace
+			save "$temp_dir\temp_`year'_PISA_v01_M_v01_A_CI_MEANS_Subgroups_`cc'.dta", replace
 		}
 	}
 	*restore
@@ -160,7 +160,7 @@ foreach cc of local cnt {
 
 	levelsof year if countrycode == "`cc'", local(yr)
 
-	touch "$temp/Brief_`cc'.dta", replace
+	touch "$temp/Brief_`cc'_MEANS.dta", replace
 	gen year = .
 	foreach year of local yr {
 	
@@ -199,7 +199,7 @@ foreach cc of local cnt {
 		local time  = subinstr("$S_TIME",":","-",.)
 
 
-	append using "$temp_dir\temp_`year'_PISA_v01_M_v01_A_CI_MEANS_Subgroups.dta", replace
+	append using "$temp_dir\temp_`year'_PISA_v01_M_v01_A_CI_MEANS_Subgroups_`cc'.dta", replace
 	replace year = `year' if !missing(year)
 	save "$temp\temp_ALL_PISA_v01_M_v01_A_CI_MEANS_Subgroups.dta"
 	sort countrycode year 
