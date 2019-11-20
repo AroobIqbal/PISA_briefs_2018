@@ -160,7 +160,7 @@ use "$temp_dir\PISA_2015.dta", replace
 
     *<_score_assessment_subject_pv_>
 	foreach sub in read math scie flit {
-		foreach pv in 1 2 3 4 5 {
+		foreach pv in 1/10 {
 			clonevar score_pisa_`sub'_`pv' = pv`pv'`sub'
 			label var score_pisa_`sub'_`pv' "Plausible value `pv': `assessment' score for `sub'"
 		}
@@ -171,7 +171,7 @@ use "$temp_dir\PISA_2015.dta", replace
 
     *<_level_assessment_subject_pv_> - Proficiency levels to be created
 	*For science - According to PISA 2015 report
-		foreach pv in 1 2 3 4 5 {
+		foreach pv in 1/10 {
 			gen level_pisa_scie_`pv' = "<1b" if pv`pv'scie < 261 
 			replace level_pisa_scie_`pv' = "1b" if pv`pv'scie >= 261 & pv`pv'scie < 335 
 			replace level_pisa_scie_`pv' = "1a" if pv`pv'scie >= 335 & pv`pv'scie < 410 
@@ -182,7 +182,7 @@ use "$temp_dir\PISA_2015.dta", replace
 			replace level_pisa_scie_`pv' = "6" if pv`pv'scie >= 708 & !missing(pv`pv'scie)
 		}
 	*For reading - According to PISA 2015 report
-		foreach pv in 1 2 3 4 5 {
+		foreach pv in 1/10 {
 			gen level_pisa_read_`pv' = "<1b" if pv`pv'read < 262  
 			replace level_pisa_read_`pv' = "1b" if pv`pv'read >= 262 & pv`pv'read < 335 
 			replace level_pisa_read_`pv' = "1a" if pv`pv'read >= 335 & pv`pv'read < 407 
@@ -193,7 +193,7 @@ use "$temp_dir\PISA_2015.dta", replace
 			replace level_pisa_read_`pv' = "6" if pv`pv'read >= 698 & !missing(pv`pv'read)
 		}
 	*For mathematics - According to PISA 2015 report
-		foreach pv in 1 2 3 4 5 {
+		foreach pv in 1/10 {
 			gen level_pisa_math_`pv' = "<1" if pv`pv'math < 358 
 			replace level_pisa_math_`pv' = "1" if pv`pv'math >= 358 & pv`pv'math < 420 
 			replace level_pisa_math_`pv' = "2" if pv`pv'math >= 420 & pv`pv'math < 482 
@@ -203,7 +203,7 @@ use "$temp_dir\PISA_2015.dta", replace
 			replace level_pisa_math_`pv' = "6" if pv`pv'math >= 669 & !missing(pv`pv'math)
 		}
 		*For financial litearcy - According to PISA 2015 report
-		foreach pv in 1 2 3 4 5 {
+		foreach pv in 1/10 {
 			gen level_pisa_flit_`pv' = "<1" if pv`pv'flit < 326  
 			replace level_pisa_flit_`pv' = "1" if pv`pv'flit >= 326 & pv`pv'flit < 400 
 			replace level_pisa_flit_`pv' = "2" if pv`pv'flit >= 400 & pv`pv'flit < 475 
@@ -211,7 +211,8 @@ use "$temp_dir\PISA_2015.dta", replace
 			replace level_pisa_flit_`pv' = "4" if pv`pv'flit >= 550 & pv`pv'flit < 625
 			replace level_pisa_flit_`pv' = "6" if pv`pv'flit >= 625 & !missing(pv`pv'flit)
 		}
-    *</_level_assessment_subject_pv_>*/
+    
+	*</_level_assessment_subject_pv_>*/
 
 
     // TRAIT Vars: - Add more as needed - Go through PISA
