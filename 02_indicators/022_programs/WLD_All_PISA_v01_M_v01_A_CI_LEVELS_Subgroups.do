@@ -109,7 +109,7 @@ foreach cc of local cnt {
 			gen total = 1
 			label define total 1 "total"
 			label values total total
-			local traitvars male urban native escs_quintile escs_quintile_read escs_quintile_math escs_quintile_scie ece* language school_type city 
+			local traitvars male urban native escs_quintile escs_q_read escs_q_math escs_q_scie ece* language school_type city 
 			set trace on				
 			foreach sub of local subject {
 				foreach indicator in blevbelow1b  blev1b blev1a blevbelow1 blev1 blev2 blev3 blev4 blev5 blev6 {
@@ -125,7 +125,7 @@ foreach cc of local cnt {
 									ren `indicator'`sub'`i'`trait'* `indicator'`sub'`trait'*_`i'
 								}
 						  }
-							
+						
 	*-----------------------------------------------------------------------------
 	*2) *Calculation of indicators by subgroups of traitvars
 	*-----------------------------------------------------------------------------

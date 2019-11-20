@@ -89,7 +89,7 @@ foreach cc of local cnt {
 			gen total = 1
 			label define total 1 "total"
 			label values total total
-			local traitvars male urban native escs_quintile escs_quintile_read escs_quintile_math escs_quintile_scie ece* language school_type city 
+			local traitvars male urban native escs_quintile escs_q_read escs_q_math escs_q_scie ece* language school_type city 
 							
 			foreach sub of local subject {
 				foreach indicator in score {
