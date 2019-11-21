@@ -10,7 +10,7 @@ local master      = "v01_M" /* usually v01_M, unless the master (eduraw) was upd
 local adaptation  = "wrk_A_GLAD" /* no need to change here */
 local module      = "ALL"  /* for now, we are only generating ALL and ALL-BASE in GLAD */
 local ttl_info    = "Joao Pedro de Azevedo [eduanalytics@worldbank.org]" /* no need to change here */
-local dofile_info = "last modified by Aishwarya on November 14, 2019, 2019"  /* change date*/
+local dofile_info = "last modified by Aishwarya on November 21, 2019, 2019"  /* change date*/
 *
 * Steps:
 * 0) Program setup (identical for all assessments)
@@ -179,6 +179,7 @@ use "$temp_dir\PISA_2009.dta", replace
 			replace level_pisa_scie_`pv' = "4" if pv`pv'scie >= 559 & pv`pv'scie < 633
 			replace level_pisa_scie_`pv' = "5" if pv`pv'scie >= 633 & pv`pv'scie < 708
 			replace level_pisa_scie_`pv' = "6" if pv`pv'scie >= 708 & !missing(pv`pv'scie)
+			label var level_pisa_scie_`pv' "Plausible value `pv': PISA level for scie"
 		}
 	*For reading - According to PISA 2015 report
 		foreach pv in 1 2 3 4 5 {
@@ -190,6 +191,7 @@ use "$temp_dir\PISA_2009.dta", replace
 			replace level_pisa_read_`pv' = "4" if pv`pv'read >= 553 & pv`pv'read < 626
 			replace level_pisa_read_`pv' = "5" if pv`pv'read >= 626 & pv`pv'read < 698
 			replace level_pisa_read_`pv' = "6" if pv`pv'read >= 698 & !missing(pv`pv'read)
+			label var level_pisa_scie_`pv' "Plausible value `pv': PISA level for read"
 		}
 	*For mathematics - According to PISA 2015 report
 		foreach pv in 1 2 3 4 5 {
@@ -200,12 +202,13 @@ use "$temp_dir\PISA_2009.dta", replace
 			replace level_pisa_math_`pv' = "4" if pv`pv'math >= 545 & pv`pv'math < 607
 			replace level_pisa_math_`pv' = "5" if pv`pv'math >= 607 & pv`pv'math < 669
 			replace level_pisa_math_`pv' = "6" if pv`pv'math >= 669 & !missing(pv`pv'math)
+			label var level_pisa_scie_`pv' "Plausible value `pv': PISA level for math"
 		}
     *</_level_assessment_subject_pv_>*/
 
 
     // TRAIT Vars: - Add more as needed - Go through PISA
-    local traitvars	"age urban* male escs_quintile native city ece language school_type"
+    local traitvars	"age urban* male escs_quintile native city ece language school_type school_type_o"
 
     *<_age_>
     *gen age = asdage		if  !missing(asdage)	& asdage!= 99
@@ -240,7 +243,7 @@ use "$temp_dir\PISA_2009.dta", replace
     gen native = immig if !inlist(immig,7,9)
     replace native = -97 if inlist(immig,7)
 	replace native = -99 if inlist(immig,9)
-	label define native 1 "N" 2 "SG" 3 "FG"
+	label define native 1 "N" 2 "SGen" 3 "FGen"
 	label value native native
 	label var native "Learner is native (1), second-generation (2), first-generation (3)"
     *</_native_>
@@ -260,7 +263,7 @@ use "$temp_dir\PISA_2009.dta", replace
 	replace language = -97 if inlist(st19q01, 7)
 	replace language = -98 if inlist(st19q01,8)
     replace language = -99 if inlist(st19q01,9)
-	label define language 1 "Test" 2 "Other"
+	label define language 1 "LangTest" 2 "LangOther"
 	label value language language 
 	label var language "Language of test (1), other language (2)"
     *</_language_>
@@ -274,6 +277,14 @@ use "$temp_dir\PISA_2009.dta", replace
 	label value school_type school_type
 	label var school_type "Type of ownership and decision-making power of schools"
 	*</_school_type_>
+	
+	*<_school_type_o_> - original school type variable 
+	gen school_type_o = sc02q01 if !inlist(sc02q01,8,9)
+	replace school_type_o = -98 if inlist(sc02q01,8, 9)
+	label define school_type_o 1 "PublicSch" 2 "PvtSch", modify
+	label value school_type_o school_type_o
+	label var school_type_o "Type of school - Public or Private"
+	*</_school_type_o_>
 
 
     // SAMPLE Vars:		 	  /* CHANGE HERE FOR YOUR ASSESSMENT!!! PIRLS EXAMPLE */
@@ -317,7 +328,7 @@ use "$temp_dir\PISA_2009.dta", replace
 	
 	label define escs_quintile 1 "q1" 2 "q2" 3 "q3" 4 "q4" 5 "q5", modify
 	label value escs_quintile escs_quintile
-	label var escs_quintile "Income quantile"
+	label var escs_quintile "Income quintile"
 
 	*--------------------------------------------------------------------
     * 5) Labelling mising values 

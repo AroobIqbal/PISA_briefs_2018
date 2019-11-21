@@ -10,7 +10,7 @@ local master      = "v01_M" /* usually v01_M, unless the master (eduraw) was upd
 local adaptation  = "wrk_A_GLAD" /* no need to change here */
 local module      = "ALL"  /* for now, we are only generating ALL and ALL-BASE in GLAD */
 local ttl_info    = "Joao Pedro de Azevedo [eduanalytics@worldbank.org]" /* no need to change here */
-local dofile_info = "last modified by Aishwarya on November 14, 2019"  /* change date*/
+local dofile_info = "last modified by Aishwarya on November 21, 2019"  /* change date*/
 *
 * Steps:
 * 0) Program setup (identical for all assessments)
@@ -187,6 +187,7 @@ use "$temp_dir\PISA_2000.dta", replace
 			replace level_pisa_scie_`pv' = "5" if pv`pv'scie >= 633 & pv`pv'scie < 708
 			replace level_pisa_scie_`pv' = "6" if pv`pv'scie >= 708 & !missing(pv`pv'scie)
 			replace level_pisa_scie_`pv' = "-99" if missing(level_pisa_scie_`pv')
+			label var level_pisa_scie_`pv' "Plausible value `pv': PISA level for scie"
 		}
 	*For reading - According to PISA 2015 report
 		foreach pv in 1 2 3 4 5 {
@@ -198,6 +199,7 @@ use "$temp_dir\PISA_2000.dta", replace
 			replace level_pisa_read_`pv' = "4" if pv`pv'read >= 553 & pv`pv'read < 626
 			replace level_pisa_read_`pv' = "5" if pv`pv'read >= 626 & pv`pv'read < 698
 			replace level_pisa_read_`pv' = "6" if pv`pv'read >= 698 & !missing(pv`pv'read)
+			label var level_pisa_scie_`pv' "Plausible value `pv': PISA level for read"
 		}
 	*For mathematics - According to PISA 2015 report
 		foreach pv in 1 2 3 4 5 {
@@ -209,13 +211,14 @@ use "$temp_dir\PISA_2000.dta", replace
 			replace level_pisa_math_`pv' = "5" if pv`pv'math >= 607 & pv`pv'math < 669
 			replace level_pisa_math_`pv' = "6" if pv`pv'math >= 669 & !missing(pv`pv'math)
 			replace level_pisa_math_`pv' = "-99" if missing(level_pisa_math_`pv')
+			label var level_pisa_scie_`pv' "Plausible value `pv': PISA level for math"
 
 		}
     *</_level_assessment_subject_pv_>*/
 
 
     // TRAIT Vars: - Add more as needed - Go through PISA
-    local traitvars	"age urban* male escs escs_q_read native city escs_q_math escs_q_scie school_type language"
+    local traitvars	"age urban* male escs escs_q_read native city escs_q_math escs_q_scie school_type language school_type_o"
 
     *<_age_>
 	recode age (997 999 = .z), gen(age_n)
@@ -252,7 +255,7 @@ use "$temp_dir\PISA_2000.dta", replace
     gen native = 1 if st16q02 == 1 | st16q03 == 1 
 	replace native = 2 if st16q01 == 1 & (st16q02 == 2 & st16q03 == 2)
 	replace native = 3 if st16q01 == 2 & (st16q02 == 2 & st16q03 == 2)
-    label define native 1 "N" 2 "SG" 3 "FG"
+    label define native 1 "N" 2 "SGen" 3 "FGen"
 	label value native native
     label var native "Learner is native (1), second-generation (2), first-generation (3)"
 	*</_native_>
@@ -273,10 +276,18 @@ use "$temp_dir\PISA_2000.dta", replace
 	replace language = 2 if inlist(st17q01,2,3,4)
 	replace language = -97 if inlist(st17q01,7)
 	replace language = -99 if inlist(st17q01,8,9)
-    label define language 1 "Test" 2 "Other"
+    label define language 1 "LangTest" 2 "LangOther"
 	label value language language 
 	label variable language "Language of test (1), other language (2)"
     *</_language_>
+	
+	*<_school_type_o_> - original school type variable 
+	gen school_type_o = sc03q01 if !inlist(sc03q01,8,9)
+	replace school_type_o = -98 if inlist(sc03q01,8, 9)
+	label define school_type_o 1 "PublicSch" 2 "PvtSch", modify
+	label value school_type_o school_type_o
+	label var school_type_o "Type of school - Public or Private"
+	*</_school_type_o_>
 
 
     // SAMPLE Vars:		 	  /* CHANGE HERE FOR YOUR ASSESSMENT!!! PIRLS EXAMPLE */
@@ -326,15 +337,15 @@ use "$temp_dir\PISA_2000.dta", replace
 	*removed the loop for labelling as it wasn't labelling correctly 
     label define escs_q_read 1 "Rq1" 2 "Rq2" 3 "Rq3" 4 "Rq4" 5 "Rq5", modify
 	label value escs_q_read escs_q_read
-	label var escs_q_read "Income quantile"
+	label var escs_q_read "Income quintile"
 	
 	label define escs_q_math 1 "Mq1" 2 "Mq2" 3 "Mq3" 4 "Mq4" 5 "Mq5", modify
 	label value escs_q_math escs_q_math
-	label var escs_q_math "Income quantile"
+	label var escs_q_math "Income quintile"
 	
 	label define escs_q_scie 1 "Sq1" 2 "Sq2" 3 "Sq3" 4 "Sq4" 5 "Sq5", modify
 	label value escs_q_scie escs_q_scie
-	label var escs_q_scie "Income quantile"
+	label var escs_q_scie "Income quintile"
 	
 	*-------------------------------------------------------------------------------
 	* 5) Labelling missing values
