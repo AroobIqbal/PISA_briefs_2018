@@ -216,7 +216,7 @@ use "$temp_dir\PISA_2015.dta", replace
 
 
     // TRAIT Vars: - Add more as needed - Go through PISA
-    local traitvars	"age urban* male escs_quintile native city ece language school_type"
+    local traitvars	"age urban* male escs_quintile native city ece language school_type school_type_o"
 
     *<_age_>
     *gen age = asdage		if  !missing(asdage)	& asdage!= 99
@@ -278,7 +278,16 @@ use "$temp_dir\PISA_2015.dta", replace
 	label value school_type school_type
 	label var school_type "Type of ownership and decision-making power of schools"
 	*</_school_type_>
-
+	
+	*<_school_type_o_> - original school type variable 
+	gen school_type_o = sc013q01ta if !inlist(sc013q01ta,8,9)
+	replace school_type_o = -98 if inlist(sc013q01ta,8, 9)
+	label define school_type_o 1 "PublicSch" 2 "PvtSch", modify
+	label value school_type_o school_type_o
+	label var school_type_o "Type of school - Public or Private"
+	*</_school_type_o_>
+	
+	
     // SAMPLE Vars:		 	  /* CHANGE HERE FOR YOUR ASSESSMENT!!! PIRLS EXAMPLE */
     local samplevars "learner_weight* weight_replicate*"
 	
