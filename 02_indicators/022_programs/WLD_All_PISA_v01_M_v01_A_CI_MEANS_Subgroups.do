@@ -14,11 +14,10 @@
 use "$input_raw/master_countrycode_list.dta", clear
 keep if assessment == "PISA"
 *Testing for one country:
-keep if countrycode == "BGR"
 levelsof countrycode, local (cnt)
 set trace on
 foreach cc of local cnt {
-	*preserve
+	preserve
 	levelsof year if countrycode == "`cc'", local(yr)
 	
 	foreach year of local yr {
@@ -63,7 +62,7 @@ foreach cc of local cnt {
 		* Creating locals to accomodate additonal subjects added in later years 
 		if inlist(`year',2000,2003,2006,2009){
 		     local subject "read math scie"
-		else if inlist(`year', 2012, 2015) {
+		else if inlist(`year',2012,2015) {
 		     local subject "read math scie flit"
 		    }
 		  }
@@ -142,25 +141,10 @@ foreach cc of local cnt {
 			}
 			
 			keep countrycode national_level idgrade age m_* se_* n_*	
-			
-			*copy variable lables before collapse 	
-				foreach v of var * {
-				local l`v' : variable label `v'
-				  if `"`l`v''"' == "" {
-					local l`v' "`v'"
-				}
-			 }
-			
-			
 			collapse m_* se_* n_* idgrade age, by(countrycode national_level)
-			
-			*attach the saved labels after collapse 
-				foreach v of var * {
-				label var `v' "`l`v''"
-			  }
-			
 			save "$temp_dir\temp_`year'_PISA_v01_M_v01_A_CI_MEANS_Subgroups_`cc'.dta", replace
 		}
 	}
-	*restore
+	restore
 }
+
