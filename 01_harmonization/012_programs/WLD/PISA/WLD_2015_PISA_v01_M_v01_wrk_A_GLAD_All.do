@@ -10,7 +10,7 @@ local master      = "v01_M" /* usually v01_M, unless the master (eduraw) was upd
 local adaptation  = "wrk_A_GLAD" /* no need to change here */
 local module      = "ALL"  /* for now, we are only generating ALL and ALL-BASE in GLAD */
 local ttl_info    = "Joao Pedro de Azevedo [eduanalytics@worldbank.org]" /* no need to change here */
-local dofile_info = "last modified by Aishwarya on November 14, 2019"  /* change date*/
+local dofile_info = "last modified by Aishwarya on November 21, 2019"  /* change date*/
 *
 * Steps:
 * 0) Program setup (identical for all assessments)
@@ -180,6 +180,7 @@ use "$temp_dir\PISA_2015.dta", replace
 			replace level_pisa_scie_`pv' = "4" if pv`pv'scie >= 559 & pv`pv'scie < 633
 			replace level_pisa_scie_`pv' = "5" if pv`pv'scie >= 633 & pv`pv'scie < 708
 			replace level_pisa_scie_`pv' = "6" if pv`pv'scie >= 708 & !missing(pv`pv'scie)
+			label var level_pisa_scie_`pv' "Plausible value `pv': PISA level for scie"
 		}
 	*For reading - According to PISA 2015 report
 		foreach pv in 1 2 3 4 5 6 7 8 9 10 {
@@ -191,6 +192,7 @@ use "$temp_dir\PISA_2015.dta", replace
 			replace level_pisa_read_`pv' = "4" if pv`pv'read >= 553 & pv`pv'read < 626
 			replace level_pisa_read_`pv' = "5" if pv`pv'read >= 626 & pv`pv'read < 698
 			replace level_pisa_read_`pv' = "6" if pv`pv'read >= 698 & !missing(pv`pv'read)
+			label var level_pisa_read_`pv' "Plausible value `pv': PISA level for read"
 		}
 	*For mathematics - According to PISA 2015 report
 		foreach pv in 1 2 3 4 5 6 7 8 9 10 {
@@ -201,6 +203,7 @@ use "$temp_dir\PISA_2015.dta", replace
 			replace level_pisa_math_`pv' = "4" if pv`pv'math >= 545 & pv`pv'math < 607
 			replace level_pisa_math_`pv' = "5" if pv`pv'math >= 607 & pv`pv'math < 669
 			replace level_pisa_math_`pv' = "6" if pv`pv'math >= 669 & !missing(pv`pv'math)
+			label var level_pisa_math_`pv' "Plausible value `pv': PISA level for math"
 		}
 		*For financial litearcy - According to PISA 2015 report
 		foreach pv in 1 2 3 4 5 6 7 8 9 10 {
@@ -210,6 +213,7 @@ use "$temp_dir\PISA_2015.dta", replace
 			replace level_pisa_flit_`pv' = "3" if pv`pv'flit >= 475 & pv`pv'flit < 550
 			replace level_pisa_flit_`pv' = "4" if pv`pv'flit >= 550 & pv`pv'flit < 625
 			replace level_pisa_flit_`pv' = "6" if pv`pv'flit >= 625 & !missing(pv`pv'flit)
+		    label var level_pisa_flit_`pv' "Plausible value `pv': PISA level for flit"
 		}
     
 	*</_level_assessment_subject_pv_>*/
@@ -248,7 +252,7 @@ use "$temp_dir\PISA_2015.dta", replace
 	*<_native_>
     gen native = immig if !inlist(immig,8,9)
 	replace native = -98 if inlist(immig,8,9)
-    label define native 1 "N" 2 "SG" 3 "FG"
+    label define native 1 "N" 2 "SGen" 3 "FGen"
 	label value native native
 	label var native "Learner is native (1), second-generation (2), first-generation (3)"
     *</_native_>
@@ -266,7 +270,7 @@ use "$temp_dir\PISA_2015.dta", replace
     gen language = st022q01ta if !inlist(st022q01ta,97,98,99)
 	replace language = -97 if inlist(st022q01ta, 97)
 	replace language = -98 if inlist(st022q01ta, 98, 99)
-    label define language 1 "Test" 2 "Other"
+    label define language 1 "LangTest" 2 "LangOther"
 	label value language language
 	label var language "Language of test (1), other language (2)"
     *</_language_>
@@ -329,7 +333,7 @@ use "$temp_dir\PISA_2015.dta", replace
 	
 	label define escs_quintile 1 "q1" 2 "q2" 3 "q3" 4 "q4" 5 "q5", modify
 	label value escs_quintile escs_quintile
-	label var escs_quintile "Income quantile"
+	label var escs_quintile "Income quintile"
 	
 	*--------------------------------------------------------------------
     * 5) Labelling mising values 
