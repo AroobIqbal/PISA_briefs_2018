@@ -29,7 +29,7 @@
   if _rc == 170   global network_is_available 1
   else            global network_is_available 0
   *-----------------------------------------------------------------------------
-
+display "`c(username)'"
 
   *-----------------------------------------------------------------------------
   * Define user-dependant global paths
@@ -64,8 +64,8 @@
     global clone "N:\GDB\Personal\WB504672\GLAD-Production"
   }
   * Aishwarya
-  else if inlist("`c(username)'","wb556220","WB556220") {
-    global clone "C:\Users\wb556220\OneDrive - WBG\PISA 2018"
+  else if inlist("`c(username)'","wb556220","WB556220","s556220") {
+    global clone "S:\Personal\WB556220"
   }
 
   /* WELCOME!!! ARE YOU NEW TO THIS CODE?
