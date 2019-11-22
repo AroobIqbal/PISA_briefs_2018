@@ -286,6 +286,7 @@ use "$temp_dir\PISA_2015.dta", replace
 	*<_school_type_o_> - original school type variable 
 	gen school_type_o = sc013q01ta if !inlist(sc013q01ta,8,9)
 	replace school_type_o = -98 if inlist(sc013q01ta,8, 9)
+	replace school_type_o = -97 if inlist(sc013q01ta,7)
 	label define school_type_o 1 "PublicSch" 2 "PvtSch", modify
 	label value school_type_o school_type_o
 	label var school_type_o "Type of school - Public or Private"
