@@ -80,12 +80,15 @@ foreach cc of local cnt {
 		  
 		keep if countrycode == "`cc'"
 		
-		count
-		if r(N) > 0 {
+		*ensuring that we do not souble count by including both sub-regions and countries 
+		egen national_level_exists = max(national_level)
+		drop if national_level == 0 & national_level_exists == 1
 		
+		count
+		if r(N) > 0 {		
 			*---------------------------------------------------------------------------------
 			* 1) Calculating levels
-			*---------------------------------------------------------------------------------
+*---------------------------------------------------------------------------------
 			foreach var of varlist level* {
 				replace `var' = "" if `var' == "-99"
 				replace `var' = "below1b" if `var' == "<1b"
@@ -97,10 +100,11 @@ foreach cc of local cnt {
 				foreach l of local lev {
 					foreach i of local pvvalues {
 						gen blev`l'_pisa_`sub'_`i' = (level_pisa_`sub'_`i' == "`l'") & !missing(level_pisa_`sub'_`i')
-					}
+						label variable blev`l'_pisa_`sub'_`i' "PISA proficiency level `l' of `sub'_`i'"
+							}
 				}
 			}		
-
+			
 			*--------------------------------------------------------------------------------
 			* 2) Separating indicators by trait groups
 			*--------------------------------------------------------------------------------
@@ -108,10 +112,10 @@ foreach cc of local cnt {
 			gen total = 1
 			label define total 1 "total"
 			label values total total
-			local traitvars male urban native escs_quintile escs_q_read escs_q_math escs_q_scie ece* language school_type city 
+			local traitvars male urban native escs_quintile escs_q_read escs_q_math escs_q_scie ece* language school_type city school_type_o
 			set trace on				
 			foreach sub of local subject {
-				foreach indicator in blevbelow1b  blev1b blev1a blevbelow1 blev1 blev2 blev3 blev4 blev5 blev6 {
+				foreach indicator in blevbelow1b blev1b blev1a blevbelow1 blev1 blev2 blev3 blev4 blev5 blev6 {
 					capture confirm variable `indicator'_pisa_`sub'_1
 					if !_rc {
 						foreach trait of local traitvars  {
@@ -148,11 +152,11 @@ foreach cc of local cnt {
 							* Create variables to store estimates (mean and std error of mean) and num of obs (N)
 									matrix pv_mean = e(b)
 									matrix pv_var  = e(V)
-									gen  m_`indicator'`sub'`label'  = pv_mean[1,1]
+									gen  pct_`indicator'`sub'`label'  = pv_mean[1,1]
 									gen  se_`indicator'`sub'`label' = sqrt(pv_var[1,1])
 									gen  n_`indicator'`sub'`label'  = e(N)
 									
-									label var  m_`indicator'`sub'`label'  "Mean of `sub' `indicator' by - `label'"
+									label var  pct_`indicator'`sub'`label'  "Pct of students below `indicator' in `sub'  by - `label'"
 									label var se_`indicator'`sub'`label' "Standard error of `sub' `indicator' by  - `label'"
 									label var n_`indicator'`sub'`label'  "Number of observations used to calculate `sub' `indicator' by - `label'"
 								}
@@ -163,7 +167,7 @@ foreach cc of local cnt {
 			}
 			
 			keep countrycode national_level idgrade age m_* se_* n_*	
-			collapse m_* se_* n_* idgrade age, by(countrycode national_level)
+			collapse pct_* se_* n_* idgrade age, by(countrycode national_level)
 			save "$temp_dir\temp_`year'_PISA_v01_M_v01_A_CI_LEVELS_Subgroups_`cc'.dta", replace
 		}
 	}

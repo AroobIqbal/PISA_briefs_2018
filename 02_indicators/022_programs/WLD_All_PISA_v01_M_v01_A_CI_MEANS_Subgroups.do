@@ -78,6 +78,10 @@ foreach cc of local cnt {
 		  	  
 		keep if countrycode == "`cc'"
 		
+		*ensuring that we do not souble count by including both sub-regions and countries 
+		egen national_level_exists = max(national_level)
+		drop if national_level == 0 & national_level_exists == 1
+		
 		count
 		if r(N) > 0 {
 
@@ -88,7 +92,7 @@ foreach cc of local cnt {
 			gen total = 1
 			label define total 1 "total"
 			label values total total
-			local traitvars male urban native escs_quintile escs_q_read escs_q_math escs_q_scie ece* language school_type city 
+			local traitvars male urban native escs_quintile escs_q_read escs_q_math escs_q_scie ece* language school_type city school_type_o
 							
 			foreach sub of local subject {
 				foreach indicator in score {
