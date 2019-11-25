@@ -119,8 +119,15 @@ local dofile_info = "last modified by Aishwarya on November 21, 2019"  /* change
     // Use clonevar instead of rename (preferable over generate)
     // The labels should be the same.
     // The generation of variables was commented out and should be replaced as needed
-use "$temp_dir\PISA_2006.dta", replace
+    
+	use "$temp_dir\PISA_2006.dta", replace
 
+    *coding missing pv values in read
+            foreach pv in 1 2 3 4 5 {
+			replace pv`pv'read = .z if pv`pv'read == 9997
+			label define pv`pv'read .z "Missing", modify
+			}		
+		
     // ID Vars:
     local idvars "idcntry_raw idschool idgrade idlearner"
 
