@@ -29,7 +29,7 @@
   if _rc == 170   global network_is_available 1
   else            global network_is_available 0
   *-----------------------------------------------------------------------------
-display "`c(username)'"
+
 
   *-----------------------------------------------------------------------------
   * Define user-dependant global paths
@@ -37,7 +37,9 @@ display "`c(username)'"
   * User-dependant paths for local repo clone
   * Aroob
   if inlist("`c(username)'","wb504672","WB504672") {
-    global clone  "N:\GDB\Personal\WB504672\GLAD-Production"
+    global clone  "N:\GDB\Personal\WB504672\PISA_briefs_2018"
+	global output_briefs "C:\Users\WB504672\OneDrive - WBG\Education\ECA Regional Report\PISA_2018_Briefs\BRIEFS"
+	*global output_briefs "N:\GDB\HLO_Database\WLD\WLD_2018_PISA\WLD_2018_PISA_v01_M_BRIEFS"
   }
   * Diana
   else if inlist("`c(username)'","wb552057","WB552057","diana") {
@@ -64,8 +66,8 @@ display "`c(username)'"
     global clone "N:\GDB\Personal\WB504672\GLAD-Production"
   }
   * Aishwarya
-  else if inlist("`c(username)'","wb556220","WB556220","s556220") {
-    global clone "S:\Personal\WB556220"
+  else if inlist("`c(username)'","wb556220","WB556220") {
+    global clone "C:\Users\wb556220\OneDrive - WBG\PISA 2018"
   }
 
   /* WELCOME!!! ARE YOU NEW TO THIS CODE?
