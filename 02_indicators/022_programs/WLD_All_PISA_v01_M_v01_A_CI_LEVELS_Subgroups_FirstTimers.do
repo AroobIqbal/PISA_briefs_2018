@@ -167,7 +167,7 @@ foreach cc of local cnt {
 				}
 			}
 			
-			keep countrycode national_level idgrade age m_* se_* n_*	
+			keep countrycode national_level idgrade age pct_* se_* n_*	
 			collapse pct_* se_* n_* idgrade age, by(countrycode national_level)
 			save "$temp_dir\temp_`year'_PISA_v01_M_v01_A_CI_LEVELS_Subgroups_`cc'.dta", replace
 		}
